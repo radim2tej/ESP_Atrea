@@ -1,0 +1,120 @@
+esphome:
+  name: espatrea
+  includes: espatrea.h
+
+esp8266:
+  board: d1_mini
+
+# Enable logging
+logger:
+  hardware_uart: UART1
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "vGmcGeQv1t0YS8dYxiWZ+18dVwOTM8Wd5xJNhZfAHL0="
+
+ota:
+  password: "ee63ad1b7179078c6f6551b408078ec2"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "ESPAtrea Fallback Hotspot"
+    password: "DB03b2AyhjsK"
+  manual_ip:
+    static_ip: 192.168.3.204
+    gateway: 192.168.3.1
+    subnet: 255.255.255.0
+  power_save_mode: none
+
+captive_portal:
+
+uart:
+  id: uart_bus
+  rx_pin: GPIO3
+  tx_pin: GPIO1
+  rx_buffer_size: 20
+  baud_rate: 300
+  
+text_sensor:
+  - platform: custom
+    lambda: |-
+      auto uart = new AtreaUart(id(uart_bus));
+      auto atrea = new AtreaTextSensor();
+      App.register_component(uart);
+      App.register_component(atrea);
+      return {atrea->cp07_rezim, atrea->cp07_intenzita, atrea->cp07_rizeni_teploty, atrea->atrea_rezim, atrea->atrea_intenzita, atrea->atrea_chyby};
+    text_sensors:
+      - name: "CP07 režim VZT"
+      - name: "CP07 intenzita"
+      - name: "CP07 nastavení teplot"
+      - name: "Atrea režim VZT"
+      - name: "Atrea intenzita"
+      - name: "Atrea chyby"
+
+sensor:
+  - platform: custom
+    lambda: |-
+      auto atrea = new AtreaSensor();
+      App.register_component(atrea);
+      return {atrea->atrea_teplota_TE, atrea->atrea_teplota_TA};
+    sensors:
+      - name: "Atrea venkovní teplota"
+        unit_of_measurement: °C
+      - name: "Atrea teplota výměníku"
+        unit_of_measurement: °C
+    
+binary_sensor:
+  - platform: custom
+    lambda: |-
+      auto atrea = new AtreaBinarySensor();
+      App.register_component(atrea);
+      return {atrea->atrea_topi, atrea->atrea_chladi, atrea->atrea_narazove_vetrani, atrea->esp_aktivni_ovladac};
+    binary_sensors:
+      - name: "Atrea topení"
+      - name: "Atrea chlazení"
+      - name: "Atrea nárazové větrání"
+      - name: "ESPAtrea aktivní ovladač"
+
+switch:
+  - platform: template
+    name: "ESPAtrea topení"
+    id: espatrea_topeni 
+    optimistic: true
+    turn_on_action:
+      - switch.turn_off: espatrea_chlazeni
+        
+  - platform: template
+    name: "ESPAtrea chlazení"
+    id: espatrea_chlazeni
+    optimistic: true
+    turn_on_action:
+      - switch.turn_off: espatrea_topeni
+
+select:
+  - platform: template
+    name: "ESPAtrea režim VZT"
+    id: espatrea_rezim_vzt
+    optimistic: true
+    restore_value: true
+    options:
+      - "Rovnotlaké větrání"
+      - "Cirkulační větrání"
+      - "Cirkulace"
+      - "Cirkulace závislá"
+      - "Přetlakové větrání"
+      - "Chlazení"
+    
+  - platform: template
+    name: "ESPAtrea intenzita"
+    id: espatrea_intenzita
+    optimistic: true
+    restore_value: true
+    options:
+      - Vypnuto
+      - Střední
+      - Maximální
+    initial_option: Střední
