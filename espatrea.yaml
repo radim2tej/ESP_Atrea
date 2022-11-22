@@ -12,10 +12,10 @@ logger:
 # Enable Home Assistant API
 api:
   encryption:
-    key: "vGmcGeQv1t0YS8dYxiWZ+18dVwOTM8Wd5xJNhZfAHL0="
+    key: "xxx"
 
 ota:
-  password: "ee63ad1b7179078c6f6551b408078ec2"
+  password: "yyy"
 
 wifi:
   ssid: !secret wifi_ssid
@@ -23,7 +23,7 @@ wifi:
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
     ssid: "ESPAtrea Fallback Hotspot"
-    password: "DB03b2AyhjsK"
+    password: "zzz"
   manual_ip:
     static_ip: 192.168.3.204
     gateway: 192.168.3.1
