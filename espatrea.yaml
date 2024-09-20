@@ -23,7 +23,7 @@ wifi:
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
     ssid: "ESPAtrea Fallback Hotspot"
-    password: "zzz"
+    password: "DB04b2AyhjsK"
   manual_ip:
     static_ip: 192.168.3.204
     gateway: 192.168.3.1
