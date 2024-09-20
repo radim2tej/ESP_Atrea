@@ -16,6 +16,6 @@ The packet shape to the Atrea is:
 For the connection use a LIN bus interface (https://www.aliexpress.com/item/1005002376896294.html, https://www.aliexpress.com/item/4001054538389.html) and an ESP8266 module WeMos D1 mini, which is connected in parallel to the CP07 driver line. If the program detects the presence of the CP07 driver in the ESP8266 after startup, it will only listen to the ATREA system status. If the driver is not present, the module will take over its function. The CP07 driver is still required to configure the unit, but can be dispensed with after setup.
 
 ### Instalation
-Programming of the module uses the ESPHome environment. The code is written in C and in YAML (espatrea.h espatrea.yaml).
+Programming of the module uses the ESPHome environment. The code is written in C and in YAML (espatrea.h espatrea.yaml). The files are moved to configuration/esphome. The wifi password is in secrets.yaml . In espatrea.yaml, edit the API Key and OTA passwords.
 
 ![example view](atrea3.png)
