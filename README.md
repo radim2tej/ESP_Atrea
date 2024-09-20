@@ -7,7 +7,7 @@ Replacement of the CP07 controller with the ESP8266 module for controlling the A
 The CP07 controller communicates with the ATREA RK2 heat recovery unit via the LIN bus. It communicates at 300 Bauds and each packet has 10 bytes.
 
 The packet format to the CP07 driver is:
-- 0xF5 0x00 0x01 [mode 0,1,2,4,5,8,16] [intensity 0,1,2, heating 8, intensive ventilation 16, cooling] [errors states] [temp TE] [temp TA] x x [crc]
+- 0xF5 0x00 0x01 [mode 0,1,2,4,5,8,16] [intensity 0,1,2, heating 8, intensive ventilation 16, cooling] [errors states] [temp TE] [temp TA] x [crc]
 
 The packet shape to the Atrea is:
 - 0xF5 0x00 0x01 [intensity 1,2 or 4] [mode 1,8,4,16] 0x02 [mode 0,1,2,3] 0x02 0x00 [crc]
