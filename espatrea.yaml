@@ -77,27 +77,27 @@ binary_sensor:
       - name: "Atrea topení"
       - name: "Atrea chlazení"
       - name: "Atrea nárazové větrání"
-      - name: "ESPAtrea aktivní ovladač"
+      - name: "ESP aktivní ovladač"
 
 switch:
   - platform: template
-    name: "ESPAtrea topení"
-    id: espatrea_topeni 
+    name: "ESP topení"
+    id: esp_topeni 
     optimistic: true
     turn_on_action:
-      - switch.turn_off: espatrea_chlazeni
+      - switch.turn_off: esp_chlazeni
         
   - platform: template
-    name: "ESPAtrea chlazení"
-    id: espatrea_chlazeni
+    name: "ESP chlazení"
+    id: esp_chlazeni
     optimistic: true
     turn_on_action:
-      - switch.turn_off: espatrea_topeni
+      - switch.turn_off: esp_topeni
 
 select:
   - platform: template
-    name: "ESPAtrea režim VZT"
-    id: espatrea_rezim_vzt
+    name: "ESP režim VZT"
+    id: esp_rezim_vzt
     optimistic: true
     restore_value: true
     options:
@@ -106,11 +106,10 @@ select:
       - "Cirkulace"
       - "Cirkulace závislá"
       - "Přetlakové větrání"
-      - "Chlazení"
     
   - platform: template
-    name: "ESPAtrea intenzita"
-    id: espatrea_intenzita
+    name: "ESP intenzita"
+    id: esp_intenzita
     optimistic: true
     restore_value: true
     options:
