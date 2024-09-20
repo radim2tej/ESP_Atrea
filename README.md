@@ -2,7 +2,6 @@
 Replacement of the CP07 controller with the ESP8266 module for controlling the Atrea RK2 heat recovery unit and similar using Home Assistant. The module can either monitor or directly replace the CP07 controller via ESP8266, LIN interface and a Home Assistant. The module enables control of ventilation, heating and cooling.
 ![example view](atrea1.png)
 ![example view](atrea2.png)
-![example view](atrea3.png)
 
 ### Communication
 The CP07 controller communicates with the ATREA RK2 heat recovery unit via the LIN bus. It communicates at 300 Bauds and each packet has 10 bytes.
@@ -16,3 +15,5 @@ For the connection use a LIN bus interface ('https://www.aliexpress.com/item/100
 
 ### Instalation
 Programming of the module uses the ESPHome environment. The code is written in C and in YAML (espatrea.h espatrea.yaml).
+
+![example view](atrea3.png)
