@@ -6,23 +6,25 @@ Replacement of the CP07 controller with the ESP8266 module for controlling the A
 The CP07 controller communicates with the ATREA RK2 heat recovery unit via the LIN bus. It communicates at 300 Bauds and each packet has 10 bytes. The CP07 driver sends a query to the Atrea unit (the type is in bytes 2 and 3) and receives a response from Atrea.
 
 ### operating mode
-The request packet from the CP07 controller to the Atrea unit:
-- 0xF5 0x00 0x01 [intensity 1,2,4] [mode 1,2,4,8,16] 0x02 [modeB 0,1,2,3] [temp 0,1,2] 0x00 [crc]
+The requests packet from the CP07 controller to the Atrea unit:
+- 0xF5 0x00 0x01 [intensity 1,2,4] [mode 1,2,4,8,16] [flag] [modeB 0,1,2,3] [temp 0,1,2] 0x00 [crc]
     - intensity is 1=off, 2=medium or 4=max
     - modes:
-        - pressure ventilation: mode = 1, modeB = 1
-        - circulation dependent: mode = 2, modeB = 2
-        - circulation: mode = 4, modeB = 1
-        - circulation ventilation: mode = 8, modeB = 1
-        - equal pressure ventilation: mode = 16, modeB = 1
-        - cooling: mode = 1, modeB = 2
+        - pressure ventilation: mode = 1, flag = 2, modeB = 1, temp = 0
+        - circulation dependent: mode = 2, flag = 2, modeB = 2, temp = 3 or 0
+        - circulation: mode = 4, flag = 2, modeB = 1, temp = 3 or 0
+        - circulation ventilation: mode = 8, flag = 1, modeB = 1, temp = 3 or 2 (0 in summer)
+        - equal pressure ventilation (not heating): mode = 16, flag = 2, modeB = 2, temp = 0
+        - equal pressure ventilation (heating wihout heat pump): mode = 16, flag = 2, modeB = 2, temp = 0 (or 2)
+        - equal pressure ventilation (heating with heat pump): mode = 8, flag = 1, modeB = 1, temp = 3 (new CP07 for heat pump)
+        - cooling: mode = 1, flag = 2, modeB = 2, temp = 1
     - temp 0, 1 = cooling during pressure ventilaton otherwise heating
 
-The respond packet from the Atrea unit to the CP07 controller:
-- 0xF5 0x00 0x01 [mode 0,1,2,4,5,8,16] [flags: intensity 0,1,2, errorB 0x04, heating 0x08, intensive vent., cooling] [errors] [TE] [TA] x [crc]
+The responds packet from the Atrea unit to the CP07 controller:
+- 0xF5 0x00 0x01 [mode 0,1,2,4,5,8,16] [flags: intensity 0,1,2, errorB 0x04, heating 0x08, intensive vent. 0x10] [errors] [TE] [TA] x [crc]
     - modes:
-        - nothing: mode = 0, flags = 0 or 0x20 (cooling)
-            - value 0x10 and 0x20 possibly means opening of the flaps
+        - nothing: mode = 0, flags = 0 or 0x20
+            - value 0x20 possibly means opening of the flaps
         - pressure ventilation: mode = 1, flags = 1 or 2
         - circulation dependent: mode = 2, flags = 0x20
         - circulation: mode = 4, flag = 1 or 2
@@ -38,25 +40,25 @@ The respond packet from the Atrea unit to the CP07 controller:
     - errors 1=TE error, 2=TI2 error, 4=recuperator freezing, 8=TA error, 16=1st.freezing protection, 32=2nd.freezing protection, 64=active STOP, 128=communication error
 
 ### setup
-The request packets from the CP07 controller to the ATREA unit:
-- 0xF5 0x00 0x01 [intensity] [mode] 0x02 [modeB] [temp] 0x00 [crc]
-- 0xF5 0x00 0x03 [intensity] [mode] 0x02 [modeB] [temp] 0x00 [crc]
-- 0xF5 0x02 0x03 [intensity] [mode] 0x02 [modeB] [temp] 0x00 [crc]
-- 0xF5 0x01 0x03 [intensity] [mode] 0x02 [modeB] [temp] 0x00 [crc]
+The requests packets from the CP07 controller to the ATREA unit:
+- 0xF5 0x00 0x01 [intensity] [mode] [flag] [modeB] [temp] 0x00 [crc]
+- 0xF5 0x00 0x03 [intensity] [mode] [flag] [modeB] [temp] 0x00 [crc]
+- 0xF5 0x02 0x03 [intensity] [mode] [flag] [modeB] [temp] 0x00 [crc]
+- 0xF5 0x01 0x03 [intensity] [mode] [flag] [modeB] [temp] 0x00 [crc]
   
-The respond packets from the ATREA unit to the CP07 controller:
+The responds packets from the ATREA unit to the CP07 controller:
 - 0xF5 0x00 0x01 [mode] [intensity, errorB, heating, intensive vent., cooling] [errors] [TE] [TA] x [crc]
 - 0xF5 0x00 0x03 [0x60 + power inputs D1-D3 1,2,4] 0x0A 0x00 0x00 0x00 0x81 [crc]
 - 0xF5 0x02 0x03 0xFF 0x33 0x82 0xEC 0xFF 0xCB [crc]
 - 0xF5 0x01 0x03 0xFF [temp TI2 - behind recuperator] [temp TE - outdoor] 0x39 0x00 0x99 [crc]
 
 ### servis menu
-The request packets from the CP07 controller to the ATREA unit:
+The requests packets from the CP07 controller to the ATREA unit:
 - 0xF5 0x41 0x01 [circulation] [node DA2] [engine MC 0,1,2,3] [engine MV 0,1,2] [bypass 1, ZR 2, pump 4, boiler 8, output OC1 16, output EXT 32] 0x00 [crc]
 - 0xF5 0x42 0x01 x x x x [bypass 1, ZR 2, pump 4, boiler 8, output OC1 0x10, output EXT 0x20] 0x00 [crc]
 - 0xF5 0x43 0x01 x x x x [bypass 1, ZR 2, pump 4, boiler 8, output OC1 0x10, output EXT 0x20] 0x00 [crc]
 
-The respond packets from the ATREA unit to the CP07 controller:
+The responds packets from the ATREA unit to the CP07 controller:
 - 0xF5 0x41 0x01 [temp TA] [temp TI2] [temp TE] 0x00 0x00 0x00 [crc]
 - 0xF5 0x42 0x01 0xFF 0x33 0x82 0xEC 0xFF 0x0B [crc]
 - 0xF5 0x43 0x01 0x03 [input D1 D2 D3] 0x00 0x00 0x00 0x00 [crc]
