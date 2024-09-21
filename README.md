@@ -1,5 +1,5 @@
 # ESP Atrea #
-Replacement of the CP07 controller with the ESP8266 module for controlling the Atrea RK2 heat recovery unit and similar using Home Assistant. The module can either monitor or directly replace the CP07 controller via ESP8266, LIN interface and a Home Assistant. The module enables control of ventilation, heating and cooling.
+Replacement of the CP07 controller with the ESP8266 module for controlling the Atrea RK2 heat recovery unit and similar using Home Assistant. The module can either monitor or directly replace the CP07 controller via ESP8266, LIN bus interface and a Home Assistant. The module enables control of ventilation, heating and cooling.
 ![example view](atrea4.png)
 
 # Communication
