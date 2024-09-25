@@ -66,7 +66,7 @@ The responds packets from the ATREA unit to the CP07 controller:
 ![panel 1](atrea1.png)
 ![panel 2](atrea2.png)
 
-# Logs
+# Logs CP07 <-> Atrea
 ### startup
 todo
 ### operating mode
