@@ -66,15 +66,115 @@ The responds packets from the ATREA unit to the CP07 controller:
 ![panel 1](atrea1.png)
 ![panel 2](atrea2.png)
 
-# Logs CP07 <-> Atrea
-### startup
-todo
+# Logs CP07 (fw 54.07) <-> Atrea (PIC microcontroler for Heating pump fw 53.59)
 ### operating mode
-todo
-### setup
-todo
+- equal pressure ventilation
+  - off ventilation, not heating season
+    - [CP-07]: F5 00 01 01 10 02 01 00 00 7C
+    - [ATREA]: F5 00 01 00 00 00 3D 48 FB EC
+  - medium ventilation, not heating season
+    - [CP-07]: F5 00 01 02 10 02 01 00 00 25
+    - [ATREA]: F5 00 01 10 01 00 3D 48 FB 7A
+  - max ventilation, not heating season
+    - [CP-07]: F5 00 01 04 10 02 01 00 00 97
+    - [ATREA]: F5 00 01 10 02 00 3D 48 FB 34
+  - max shock ventilation, not heating season
+    - [CP-07]: F5 00 01 04 10 02 01 00 00 97
+    - [ATREA]: F5 00 01 10 12 00 3E 48 FB AC
+
+  - off ventilation, heating season, not heating
+    - [CP-07]: F5 00 01 01 10 02 01 02 00 ED 
+    - [ATREA]: F5 00 01 00 00 00 3D 47 FB F4 
+  - medium ventilation, heating season, not heating
+    - [CP-07]: F5 00 01 02 10 02 01 02 00 B4 
+    - [ATREA]: F5 00 01 10 01 00 3D 48 FB 7A 
+  - max ventilation, heating season, not heating
+    - [CP-07]: F5 00 01 04 10 02 01 02 00 06 
+    - [ATREA]: F5 00 01 10 02 00 3D 47 FB 2C 
+  - medium / max shock ventilation, heating season, not heating
+    - [CP-07]: F5 00 01 02 10 02 01 02 00 B4 
+    - [CP-07]: F5 00 01 04 10 02 01 02 00 06
+    - [ATREA]: F5 00 01 10 32 00 3D 43 FB 93
+    - [ATREA]: F5 00 01 10 12 00 3D 57 FB BC
+
+  - off ventilation, heating season, heating (nonsense)
+    - [CP-07]: F5 00 01 01 10 02 01 03 00 29  
+    - [ATREA]: F5 00 01 00 00 00 3D 49 FB 28
+  - medium ventilation, heating season, heating (switch on electric boiler)
+    - [CP-07]: F5 00 01 02 10 02 01 03 00 70
+    - [ATREA]: F5 00 01 10 09 00 3D 49 FB 80
+  - max ventilation, heating season, heating (switch on electric boiler)
+    - [CP-07]: F5 00 01 04 10 02 01 03 00 C2
+    - [ATREA]: F5 00 01 10 3A 00 3D 54 FB 2F
+  - medium / max shock ventilation, heating season, heating
+    - [CP-07]: F5 00 01 02 10 02 01 03 00 70 
+    - [CP-07]: F5 00 01 04 10 02 01 03 00 C2
+    - [ATREA]: F5 00 01 10 3A 00 3D 46 FB 52 
+    - [ATREA]: F5 00 01 10 1A 00 3D 58 FB 9A
+
+- cooling
+  - cooling off, not heating season
+    - [CP-07]: F5 00 01 02 01 02 02 00 00 70    ověřit !
+    - [ATREA]: F5 00 01 05 20 00 3D 43 FB DC
+  - medium cooling, not heating season
+    - [CP-07]: F5 00 01 02 01 02 02 01 00 B4
+    - [ATREA]: F5 00 01 05 21 00 3D 42 FB D5
+  - max cooling, not heating season
+    - [CP-07]: F5 00 01 04 01 02 02 01 00 06
+    - [ATREA]: F5 00 01 05 22 00 3D 49 FB B8
+  - shock ventilation + cooling, not heating season
+    - [CP-07]: F5 00 01 02 01 02 02 01 00 B4    ověřit !
+    - [ATREA]: F5 00 01 01 31 00 3D 41 FB 20
 ### servis menu
-todo
+    - [CP-07]: F5 00 01 02 10 02 01 02 00 B4
+    - [ATREA]: F5 00 01 10 32 00 3D 43 FB 93
+    - [CP-07]: F5 01 03 02 10 02 01 02 00 8D
+    - [ATREA]: F5 01 03 FF 43 43 3D 00 A9 C6
+    - [CP-07]: F5 02 03 02 10 02 01 02 00 48
+    - [ATREA]: F5 02 03 FF 33 82 EC FF FB 8C
+    - [CP-07]: F5 00 03 02 10 02 01 02 00 CE
+    - [ATREA]: F5 00 03 61 0A 00 00 00 81 7A
+### servis menu / outputs control
+    - [CP-07]: F5 43 01 00 00 00 00 00 00 17
+    - [ATREA]: F5 43 01 03 02 00 00 00 00 CD
+    - [CP-07]: F5 41 01 00 00 00 00 00 00 91
+    - [ATREA]: F5 41 01 12 11 0B 00 00 00 81
+    - [CP-07]: F5 42 01 00 00 00 00 00 00 54
+    - [ATREA]: F5 42 01 FF 33 82 EC FF 3B 75
+### startup
+- [CP-07]: F5 00 01 01 10 02 01 00 00 7C
+- [CP-07]: F5 00 01 01 10 02 01 00 00 7C
+- [ATREA]: F5 00 01 00 00 00 00 00 FB CF
+- [CP-07]: F5 00 01 01 10 02 01 00 00 7C
+- [ATREA]: F5 00 01 1F 0F 00 00 00 FB DF
+- [CP-07]: F5 00 01 01 10 02 01 00 00 7C
+- [ATREA]: F5 00 01 1F 0F 00 00 00 FB DF
+- [CP-07]: F5 00 01 01 10 02 01 00 00 7C
+- [ATREA]: F5 00 01 1F 0F 00 00 00 FB DF
+- [CP-07]: F5 00 01 01 10 02 01 00 00 7C
+- [ATREA]: F5 00 01 1F 0F 00 00 00 FB DF
+- [CP-07]: F5 00 01 01 10 02 01 00 00 7C
+- [ATREA]: F5 00 01 1F 0F 00 00 00 FB DF
+- [CP-07]: F5 00 01 01 10 02 01 00 00 7C
+- [ATREA]: F5 00 01 1F 0F 00 00 00 FB DF
+- [CP-07]: F5 00 01 01 10 02 01 00 00 7C
+- [ATREA]: F5 00 01 1F 0F 00 00 00 FB DF
+- [CP-07]: F5 00 01 01 10 02 01 00 00 7C
+- [ATREA]: F5 00 01 1F 0F 00 3E 4B FB 4D
+- [CP-07]: F5 52 01 01 10 02 01 00 00 E7
+- [ATREA]: F5 52 01 32 4B 0F 35 00 00 6B
+- [CP-07]: F5 53 01 01 10 02 01 00 00 A4
+- [ATREA]: F5 53 01 37 2D 19 30 00 00 4A
+- [CP-07]: F5 54 01 01 10 02 01 00 00 74
+- [ATREA]: F5 54 01 32 0A 01 FF 00 00 F0
+- [CP-07]: F5 52 01 01 10 02 01 00 00 E7
+- [ATREA]: F5 52 01 32 4B 0F 35 00 00 6B
+- [CP-07]: F5 53 01 01 10 02 01 00 00 A4
+- [ATREA]: F5 53 01 37 2D 19 30 00 00 4A
+- [CP-07]: F5 54 01 01 10 02 01 00 00 74
+- [ATREA]: F5 54 01 32 0A 01 FF 00 00 F0
+- [CP-07]: F5 54 01 01 10 02 01 00 00 74
+- [ATREA]: F5 54 01 32 0A 01 FF 00 00 F0
 
 # Hardware
 For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](https://www.aliexpress.com/item/4001054538389.html) or maybe [UART to LIN Bus Module](https://www.aliexpress.com/item/1005002376896294.html) and an ESP8266 module WeMos D1 mini, which is connected in parallel to the CP07 driver line. If the program detects the presence of the CP07 driver in the ESP8266 after startup, it will only listen to the ATREA system status. If the driver is not present, the module will take over its function. The CP07 driver is still required to configure the unit, but can be disconnect after setup ATREA.
