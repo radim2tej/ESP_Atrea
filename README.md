@@ -264,6 +264,9 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
     [CP-07]: F5 54 01 01 10 02 01 00 00 74
     [ATREA]: F5 54 01 32 0A 01 FF 00 00 F0
 
+![panel 1](atrea1.png)
+![panel 2](atrea2.png)
+
 # Decode packets
 ### operating mode
 The requests packet from the CP07 controller to the Atrea unit:
@@ -320,9 +323,6 @@ The responds packets from the ATREA unit to the CP07 controller:
 - 0xF5 0x41 0x01 [temp TA] [temp TI2] [temp TE] 0x00 0x00 0x00 [crc]
 - 0xF5 0x42 0x01 0xFF 0x33 0x82 0xEC 0xFF 0x0B [crc]
 - 0xF5 0x43 0x01 0x03 [input D1 D2 D3] 0x00 0x00 0x00 0x00 [crc]
-
-![panel 1](atrea1.png)
-![panel 2](atrea2.png)
 
 # Instalation
 Programming of the module uses the ESPHome environment. The code is written in C and in YAML (espatrea.h espatrea.yaml). The files are moved to configuration/esphome. The wifi password is in secrets.yaml . In espatrea.yaml, edit the API Key and OTA passwords.
