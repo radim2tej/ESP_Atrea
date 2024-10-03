@@ -10,209 +10,251 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
 ![schema](schema.jpg)
 
 # Logs CP07 (fw 54.07) <-> Atrea (PIC fw 53.59 for Heating pump)
-## operating mode equal pressure ventilation
+## operating mode equal pressure ventilation RV
 ### not heating season
-    off ventilation, not heating season
+    off ventilation
       [CP-07]: F5 00 01 01 10 02 01 00 00 7C
-      [ATREA]: F5 00 01 00 00 00 3D 48 FB EC    // 0x00
-    medium ventilation, not heating season
+      [ATREA]: F5 00 01 00 00 00 3D 48 FB EC
+    medium ventilation
       [CP-07]: F5 00 01 02 10 02 01 00 00 25
-      [ATREA]: F5 00 01 10 01 00 3D 48 FB 7A    // 0x00
-    max ventilation, not heating season
+      [ATREA]: F5 00 01 10 01 00 3D 48 FB 7A
+    max ventilation
       [CP-07]: F5 00 01 04 10 02 01 00 00 97
-      [ATREA]: F5 00 01 10 02 00 3D 48 FB 34    // 0x00
-    max shock ventilation, not heating season
-      [CP-07]: F5 00 01 04 10 02 01 00 00 97
-      [ATREA]: F5 00 01 10 12 00 3E 48 FB AC    // 0x00
+      [ATREA]: F5 00 01 10 02 00 3D 48 FB 34
+    medium / max shock ventilation WC
+      [ATREA]: F5 00 01 10 12 00 3B 45 FB 10    // set max intensity
+    medium / max shock ventilation kitchen
+      [ATREA]: F5 00 01 10 32 00 3B 48 FB 61    // set max intensity
 ### heating season, not heating
     off ventilation
       [CP-07]: F5 00 01 01 10 02 01 02 00 ED 
-      [ATREA]: F5 00 01 00 00 00 3D 47 FB F4    // 0x00 
+      [ATREA]: F5 00 01 00 00 00 3D 47 FB F4
     medium ventilation
       [CP-07]: F5 00 01 02 10 02 01 02 00 B4 
-      [ATREA]: F5 00 01 10 01 00 3D 48 FB 7A    // 0x00
+      [ATREA]: F5 00 01 10 01 00 3D 48 FB 7A
     max ventilation
       [CP-07]: F5 00 01 04 10 02 01 02 00 06 
-      [ATREA]: F5 00 01 10 02 00 3D 47 FB 2C    // 0x00
-    medium / max shock ventilation
-      [CP-07]: F5 00 01 02 10 02 01 02 00 B4 
-      [CP-07]: F5 00 01 04 10 02 01 02 00 06
-      [ATREA]: F5 00 01 10 32 00 3D 43 FB 93    // 0x20
-      [ATREA]: F5 00 01 10 12 00 3D 57 FB BC    // 0x00
+      [ATREA]: F5 00 01 10 02 00 3D 47 FB 2C
+x    medium / max shock ventilation WC
+      [ATREA]: F5 00 01 10 32 00 3D 43 FB 93
+      [ATREA]: F5 00 01 10 12 00 3D 57 FB BC
+    medium / max shock ventilation kitchen      
+      [ATREA]:       
 ### heating season, heating
     off ventilation (nonsense)
       [CP-07]: F5 00 01 01 10 02 01 03 00 29  
-      [ATREA]: F5 00 01 00 00 00 3D 49 FB 28    // 0x00
+      [ATREA]: F5 00 01 00 00 00 3D 49 FB 28
     medium ventilation (switch on electric boiler)
       [CP-07]: F5 00 01 02 10 02 01 03 00 70
-      [ATREA]: F5 00 01 10 09 00 3D 49 FB 80    // 0x00
+      [ATREA]: F5 00 01 10 09 00 3D 49 FB 80
     max ventilation (switch on electric boiler)
       [CP-07]: F5 00 01 04 10 02 01 03 00 C2
-      [ATREA]: F5 00 01 10 3A 00 3D 54 FB 2F    // 0x20
-    medium / max shock ventilation (set max inensity)
-      [CP-07]: F5 00 01 04 10 02 01 03 00 C2
-      [ATREA]: F5 00 01 10 3A 00 3D 46 FB 52    // 0x20
-      [ATREA]: F5 00 01 10 1A 00 3D 58 FB 9A    // 0x00
+      [ATREA]: F5 00 01 10 3A 00 3D 54 FB 2F
+x    medium / max shock ventilation WC
+      [ATREA]: F5 00 01 10 3A 00 3D 46 FB 52
+      [ATREA]: F5 00 01 10 1A 00 3D 58 FB 9A    // set max intensity
+    medium / max shock ventilation kitchen      
+      [ATREA]:       
 
-## operating mode circulation ventilation
-  ### not heating season
+## operating mode circulation ventilation CV
+### not heating season
     off ventilation
-      [CP-07]: 
-      [ATREA]: 
+      [CP-07]: F5 00 01 01 08 02 01 00 00 3E
+      [ATREA]: F5 00 01 00 20 00 3B 47 FB DD
     medium ventilation
-      [CP-07]: 
-      [ATREA]: 
+      [CP-07]: F5 00 01 02 08 02 01 00 00 67
+      [ATREA]: F5 00 01 08 01 00 3B 49 FB 95
     max ventilation
-      [CP-07]: 
-      [ATREA]: 
-    max shock ventilation
-      [CP-07]: 
-      [ATREA]: 
+      [CP-07]: F5 00 01 04 08 02 01 00 00 D5
+      [ATREA]: F5 00 01 08 02 00 3B 49 FB DB
+    medium / max shock ventilation WC
+      [ATREA]: F5 00 01 08 31 00 3B 47 FB CD
+      [ATREA]: F5 00 01 08 32 00 3B 47 FB 83
+    medium / max shock ventilation kitchen
+      [ATREA]: F5 00 01 10 32 00 3B 47 FB 79    // set max intensity and equal pressure ventilation
 ### heating season, not heating 
     off ventilation
       [CP-07]: F5 00 01 01 08 02 01 02 00 AF 
-      [ATREA]: F5 00 01 00 00 00 3D 48 FB EC    // 0x00 reespond from 0x01 
+      [ATREA]: F5 00 01 00 00 00 3D 48 FB EC
     medium ventilation
       [CP-07]: F5 00 01 02 08 02 01 02 00 F6 
-      [ATREA]: F5 00 01 08 01 00 3D 48 FB 80    // 0x00
+      [ATREA]: F5 00 01 08 01 00 3D 48 FB 80
     max ventilation
       [CP-07]: F5 00 01 04 08 02 01 02 00 44 
-      [ATREA]: F5 00 01 08 02 00 3D 48 FB CE    // 0x00 
-    max shock ventilation
-      [CP-07]: F5 00 01 04 08 02 01 02 00 44 
-      [ATREA]: F5 00 01 08 12 00 3D 49 FB 76    // 0x00
-  ### heating season, heating 
+      [ATREA]: F5 00 01 08 02 00 3D 48 FB CE
+x    max shock ventilation WC
+      [ATREA]: F5 00 01 08 12 00 3D 49 FB 76
+    medium / max shock ventilation kitchen
+### heating season, heating 
     off ventilation
       [CP-07]: F5 00 01 01 08 02 01 03 00 6B 
-      [ATREA]: F5 00 01 00 00 00 3D 58 FB 00    // 0x00 
-    medium ventilation -> (change to max)
+      [ATREA]: F5 00 01 00 00 00 3D 58 FB 00
+    medium ventilation
+      [CP-07]: F5 00 01 02 08 02 01 03 00 32
+      [ATREA]: F5 00 01 08 09 00 3B 47 FB 77
     max ventilation
       [CP-07]: F5 00 01 04 08 02 01 03 00 80 
-      [ATREA]: F5 00 01 08 0A 00 3D 5E FB B6    // 0x00
-    medium shock ventilation WC
-      [CP-07]: F5 00 01 02 08 02 01 03 00 32 
-      [ATREA]: F5 00 01 08 19 00 3D 49 FB 06    // 0x00
-    medium shock ventilation kitchen
-      [CP-07]: F5 00 01 02 08 02 01 03 00 32 
-      [ATREA]: F5 00 01 08 19 00 3D 49 FB 06    // 0x00
-    max shock ventilation kitchen
-      [CP-07]: F5 00 01 04 08 02 01 03 00 80 
-      [ATREA]: F5 00 01 10 1A 00 3D 5B FB CF    // 0x00
+      [ATREA]: F5 00 01 08 0A 00 3D 5E FB B6
+x    medium shock ventilation WC
+      [ATREA]: F5 00 01 08 19 00 3D 49 FB 06
+x    max shock ventilation WC
+      [ATREA]: 
+x    medium shock ventilation kitchen
+      [ATREA]: F5 00 01 08 19 00 3D 49 FB 06
+x    max shock ventilation kitchen
+      [ATREA]: F5 00 01 10 1A 00 3D 5B FB CF
 
-## operating mode circulation dependent
+## operating mode circulation dependent CZ
 ### not heating season
     off ventilation
-      [CP-07]: 
-      [ATREA]: 
+      [CP-07]: F5 00 01 01 04 02 02 00 00 FB
+      [ATREA]: F5 00 01 00 20 00 3B 47 FB DD
     medium ventilation
-      [CP-07]: 
-      [ATREA]: 
+      [CP-07]: F5 00 01 02 04 02 02 00 00 A2
+      [ATREA]: F5 00 01 04 20 00 3C 4B FB 36    // standby
+      [ATREA]: F5 00 01 08 21 00 3E 4A FB 0D    // circulation ventilation CV
     max ventilation
-      [CP-07]: 
-      [ATREA]: 
-    max shock ventilation
-      [CP-07]: 
-      [ATREA]: 
+      [CP-07]: F5 00 01 04 04 02 02 00 00 10
+      [ATREA]: F5 00 01 04 20 00 3B 4A FB 88
+    medium shock ventilation WC
+      [ATREA]: F5 00 01 04 31 00 3B 49 FB 6C
+    max shock ventilation WC
+      [ATREA]: F5 00 01 04 32 00 3B 49 FB 22
+    medium / max shock ventilation kitchen
+      [ATREA]: F5 00 01 10 32 00 3B 49 FB A5
 ### heating season, not heating
     off ventilation
       [CP-07]: F5 00 01 01 04 02 02 02 00 6A 
-      [ATREA]: F5 00 01 00 20 00 3D 4C FB 2F    // 0x20 respond from 0x02 
+      [ATREA]: F5 00 01 00 20 00 3D 4C FB 2F    // 0x20 respond from 2nd 0x02 
     medium ventilation
       [CP-07]: F5 00 01 02 04 02 02 02 00 33 
-      [ATREA]: F5 00 01 04 20 00 3C 4B FB 36    // 0x20
-      [ATREA]: F5 00 01 08 21 00 3E 4A FB 0D
+      [ATREA]: F5 00 01 04 20 00 3C 4B FB 36    // standby
+      [ATREA]: F5 00 01 08 21 00 3E 4A FB 0D    // circulation ventilation CV
     max ventilation
       [CP-07]: F5 00 01 04 04 02 02 02 00 81 
-      [ATREA]: F5 00 01 04 20 00 3C 4B FB 36    // 0x20
-    medium / max shock ventilation
-      [CP-07]: F5 00 01 02 04 02 02 02 00 33
-      [CP-07]: F5 00 01 04 04 02 02 02 00 81 
-      [ATREA]: F5 00 01 04 31 00 3C 4A FB 43    // 0x20
-      [ATREA]: F5 00 01 04 32 00 3D 57 FB C3    // 0x20
+      [ATREA]: F5 00 01 04 20 00 3C 4B FB 36    // standby
+      [ATREA]: F5 00 01 08? 22 00 3E 4A FB xxxx    // ventilation      
+    medium shock ventilation WC
+      [ATREA]: F5 00 01 04 31 00 3C 4A FB 43
+    max shock ventilation WC
+      [ATREA]: F5 00 01 04 32 00 3D 57 FB C3
+    medium / max shock ventilation kitchen
+      [ATREA]: F5 00 01 10 32 00 3C 49 FB DF
 ### heating season, heating
     off ventilation
       [CP-07]: F5 00 01 01 04 02 02 03 00 AE 
-      [ATREA]: F5 00 01 00 20 00 3D 58 FB F8    // 0x20
+      [ATREA]: F5 00 01 00 20 00 3D 58 FB F8
     medium ventilation
       [CP-07]: F5 00 01 02 04 02 02 03 00 F7 
-      [ATREA]: F5 00 01 04 29 00 3D 57 FB CF    // 0x20
+      [ATREA]: F5 00 01 04 29 00 3D 57 FB CF
     max ventilation
       [CP-07]: F5 00 01 04 04 02 02 03 00 45 
-      [ATREA]: F5 00 01 04 2A 00 3D 55 FB 10    // 0x20
-    max shock ventilation
-      [CP-07]: F5 00 01 04 04 02 02 03 00 45 
-      [ATREA]: F5 00 01 04 3A 00 3D 55 FB 6C    // 0x20
+      [ATREA]: F5 00 01 04 2A 00 3D 55 FB 10
+    max shock ventilation WC
+      [ATREA]: F5 00 01 04 3A 00 3D 55 FB 6C
+    medium / max shock ventilation kitchen      
+      [ATREA]:       
 
-## operating mode circulation
+## operating mode circulation C
 ### not heating season
     off ventilation
-        [CP-07]: 
-        [ATREA]: 
+      [CP-07]: F5 00 01 01 04 02 01 00 00 1F
+      [ATREA]: F5 00 01 00 00 00 3B 46 FB E1
     medium ventilation
-      [CP-07]: 
-      [ATREA]: 
+      [CP-07]: F5 00 01 02 04 02 01 00 00 46
+      [ATREA]: F5 00 01 04 01 00 3B 4A FB BD
     max ventilation
-      [CP-07]: 
-      [ATREA]: 
-    max shock ventilation
-      [CP-07]: 
-      [ATREA]: 
-### heating season, not heating
+      [CP-07]: F5 00 01 04 04 02 01 00 00 F4
+      [ATREA]: F5 00 01 04 02 00 3B 49 FB A6
+    medium shock ventilation kitchen
+      [ATREA]: F5 00 01 04 11 00 3B 48 FB 50
+    max shock ventilation kitchen
+      [ATREA]: F5 00 01 04 12 00 3B 48 FB 1E
+    medium / max shock ventilation kitchen
+      [ATREA]: F5 00 01 10 12 00 3B 47 FB 81    // set max intensity and equal pressure ventilation
+### heating season, not heating      
     off ventilation
       [CP-07]: F5 00 01 01 04 02 01 02 00 8E 
-      [ATREA]: F5 00 01 00 00 00 3C 4C FB 7C    // 0x00
+      [ATREA]: F5 00 01 00 00 00 3C 4C FB 7C
     medium ventilation
       [CP-07]: F5 00 01 02 04 02 01 02 00 D7 
-      [ATREA]: F5 00 01 04 01 00 3C 4C FB 6D    // 0x00
+      [ATREA]: F5 00 01 04 01 00 3C 4C FB 6D
     max ventilation
       [CP-07]: F5 00 01 04 04 02 01 02 00 65 
-      [ATREA]: F5 00 01 04 02 00 3C 4B FB 4D    // 0x00
-    medium shock ventilation
-      [CP-07]: F5 00 01 02 04 02 01 02 00 D7 
-      [ATREA]: F5 00 01 04 11 00 3D 4A FB 10    // 0x00
+      [ATREA]: F5 00 01 04 02 00 3C 4B FB 4D
+x    medium shock ventilation
+      [ATREA]: F5 00 01 04 11 00 3D 4A FB 10
+    max shock ventilation
+    medium / max shock ventilation kitchen
 ### heating season, heating
     off ventilation
       [CP-07]: F5 00 01 01 04 02 01 03 00 4A 
-      [ATREA]: F5 00 01 00 00 00 3C 5B FB FE    // 0x00
+      [ATREA]: F5 00 01 00 00 00 3C 5B FB FE
     medium ventilation
       [CP-07]: F5 00 01 02 04 02 01 03 00 13 
-      [ATREA]: F5 00 01 04 09 00 3C 59 FB 40    // 0x00
+      [ATREA]: F5 00 01 04 09 00 3C 59 FB 40
     max ventilation
       [CP-07]: F5 00 01 04 04 02 01 03 00 A1 
-      [ATREA]: F5 00 01 04 0A 00 3C 58 FB CA    // 0x00
-    medium shock ventilation (sometimes set max inensity)
-      [CP-07]: F5 00 01 02 04 02 01 03 00 13 
-      [ATREA]: F5 00 01 04 19 00 3D 4A FB 2E    // 0x00
-
-## operating mode pressure ventilation, not heating season
-    off ventilation
-      [CP-07]: 
-      [ATREA]: 
-    medium ventilation
-      [CP-07]: 
-      [ATREA]: 
-    max ventilation
-      [CP-07]: 
-      [ATREA]: 
+      [ATREA]: F5 00 01 04 0A 00 3C 58 FB CA
+x    medium shock ventilation
+      [ATREA]: F5 00 01 04 19 00 3D 4A FB 2E
     max shock ventilation
-      [CP-07]: 
+      [ATREA]: 
+    medium / max shock ventilation kitchen
+      [ATREA]: 
+
+## operating mode pressure ventilation, not heating season PV
+    off ventilation
+      [CP-07]: F5 00 01 01 01 02 01 00 00 CD
+      [ATREA]: F5 00 01 00 00 00 3B 46 FB E1
+    medium ventilation
+      [CP-07]: F5 00 01 02 01 02 01 00 00 94
+      [ATREA]: F5 00 01 01 01 00 3B 49 FB 03
+    max ventilation
+      [CP-07]: F5 00 01 04 01 02 01 00 00 26
+      [ATREA]: F5 00 01 01 02 00 3B 49 FB 4D
+    medium shock ventilation
+      [ATREA]: F5 00 01 01 11 00 3B 49 FB 7F
+    max shock ventilation
+      [ATREA]: F5 00 01 01 12 00 3B 47 FB ED
+    medium / max shock ventilation kitchen
       [ATREA]: 
       
-### operating mode cooling, not heating season
+## operating mode cooling
+### not heating season, not cooling
     cooling off
-      [CP-07]: F5 00 01 *02 01 02 02 00 00 70    test !
-      [ATREA]: F5 00 01 05 20 00 3D 43 FB DC    // 0x20
+      [CP-07]: F5 00 01 01 01 02 02 00 00 xx
+      [ATREA]: F5 00 01 00 20 00 3B 44 FB 88
+    medium cooling
+      [CP-07]: F5 00 01 02 01 02 02 00 00 xx
+      [ATREA]: F5 00 01 05 21 00 3D 42 FB D5
+    max cooling
+      [CP-07]: F5 00 01 04 01 02 02 00 00 xx
+      [ATREA]: F5 00 01 05 22 00 3D 49 FB B8
+    medium shock ventilation WC
+      [ATREA]: F5 00 01 01 31 00 3B 49 FB 87
+    max shock ventilation WC
+      [ATREA]: F5 00 01 01 32 00 3B 49 FB C9
+    medium / max shock ventilation kitchen
+      [ATREA]: F5 00 01 01 31 00 3B 44 FB 0E
+### not heating season, cooling
+    cooling off
+      [CP-07]: F5 00 01 01 01 02 02 01 00 ED
+      [ATREA]: F5 00 01 00 20 00 3B 44 FB 88
     medium cooling
       [CP-07]: F5 00 01 02 01 02 02 01 00 B4
-      [ATREA]: F5 00 01 05 21 00 3D 42 FB D5    // 0x20
+      [ATREA]: F5 00 01 05 21 00 3D 42 FB D5
     max cooling
       [CP-07]: F5 00 01 04 01 02 02 01 00 06
-      [ATREA]: F5 00 01 05 22 00 3D 49 FB B8    // 0x20
-    shock ventilation + cooling
-      [CP-07]: F5 00 01 *02 01 02 02 01 00 B4    test !
-      [ATREA]: F5 00 01 *01 31 00 3D 41 FB 20    // 0x20
+      [ATREA]: F5 00 01 05 22 00 3D 49 FB B8
+    medium shock ventilation WC
+      [ATREA]: F5 00 01 01 31 00 3B 49 FB 87
+    max shock ventilation WC
+      [ATREA]: F5 00 01 01 32 00 3B 49 FB C9
+    medium / max shock ventilation kitchen
+      [ATREA]: F5 00 01 01 31 00 3B 44 FB 0E
 
-### servis
+## servis
     main menu
       [CP-07]: F5 00 01 02 10 02 01 02 00 B4
       [ATREA]: F5 00 01 10 32 00 3D 43 FB 93
@@ -229,7 +271,7 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
       [ATREA]: F5 41 01 12 11 0B 00 00 00 81
       [CP-07]: F5 42 01 00 00 00 00 00 00 54
       [ATREA]: F5 42 01 FF 33 82 EC FF 3B 75
-### startup sequence
+## startup sequence
     [CP-07]: F5 00 01 01 10 02 01 00 00 7C
     [CP-07]: F5 00 01 01 10 02 01 00 00 7C
     [ATREA]: F5 00 01 00 00 00 00 00 FB CF
