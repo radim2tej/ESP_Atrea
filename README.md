@@ -104,7 +104,7 @@ x    medium shock ventilation kitchen
 x    max shock ventilation kitchen
       [ATREA]: F5 00 01 10 1A 00 3D 5B FB CF
 
-## operating mode circulation dependent (CZ)
+## operating mode dependent circulation (CZ)
 #### not heating season
     off ventilation
       [CP-07]: F5 00 01 01 04 02 02 00 00 FB
@@ -313,7 +313,7 @@ The requests packet from the CP07 controller to the Atrea unit:
     - intensity is 1=off, 2=medium or 4=max
     - modes:
         - pressure ventilation: mode = 1, flp = 1, temp = 0
-        - circulation dependent: mode = 4, flp = 2, temp = 3 or 0
+        - dependent circulation: mode = 4, flp = 2, temp = 3 or 0
         - circulation: mode = 4, flp = 1, temp = 3 or 0
         - circulation ventilation: mode = 8, flp = 1, temp = 3 or 2 (0 in summer?)
         - equal pressure ventilation: mode = 0x10, flp = 1, temp = 0, 2, 3
@@ -329,7 +329,7 @@ The responds packet from the Atrea unit to the CP07 controller:
         - nothing: mode2 = 0, flags = 0 or 0x20
             - value 0x20 of flags possibly means state of the flaps (its similar as flp)
         - pressure ventilation: mode2 = 1, flags = 1 or 2
-        - circulation dependent: mode2 = 2, flags = 0x20
+        - dependent circulation: mode2 = 2, flags = 0x20
         - circulation: mode2 = 4, flag = 1 or 2
         - circulation ventilation: mode2 = 8, flag = 1 or 2
         - equal pressure ventilation: mode2 = 16, flag = 0x21 or 0x22
