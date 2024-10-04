@@ -36,9 +36,9 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
       [CP-07]: F5 00 01 04 10 02 01 02 00 06 
       [ATREA]: F5 00 01 10 02 00 3D 47 FB 2C
 x    medium / max shock ventilation WC
-      [ATREA]: F5 00 01 10 32 00 3D 43 FB 93
       [ATREA]: F5 00 01 10 12 00 3D 57 FB BC
     medium / max shock ventilation kitchen      
+*      [ATREA]: F5 00 01 10 32 00 3D 43 FB 93
       [ATREA]:       
 #### heating season, heating
     off ventilation (nonsense)
@@ -47,7 +47,7 @@ x    medium / max shock ventilation WC
     medium ventilation (switch on electric boiler)
       [CP-07]: F5 00 01 02 10 02 01 03 00 70
       [ATREA]: F5 00 01 10 09 00 3D 49 FB 80
-    max ventilation (switch on electric boiler)
+*    max ventilation (switch on electric boiler)
       [CP-07]: F5 00 01 04 10 02 01 03 00 C2
       [ATREA]: F5 00 01 10 3A 00 3D 54 FB 2F
 x    medium / max shock ventilation WC
@@ -60,14 +60,14 @@ x    medium / max shock ventilation WC
 #### not heating season
     off ventilation
       [CP-07]: F5 00 01 01 08 02 01 00 00 3E
-      [ATREA]: F5 00 01 00 20 00 3B 47 FB DD
+*      [ATREA]: F5 00 01 00 20 00 3B 47 FB DD
     medium ventilation
       [CP-07]: F5 00 01 02 08 02 01 00 00 67
       [ATREA]: F5 00 01 08 01 00 3B 49 FB 95
     max ventilation
       [CP-07]: F5 00 01 04 08 02 01 00 00 D5
       [ATREA]: F5 00 01 08 02 00 3B 49 FB DB
-    medium / max shock ventilation WC
+ *   medium / max shock ventilation WC
       [ATREA]: F5 00 01 08 31 00 3B 47 FB CD
       [ATREA]: F5 00 01 08 32 00 3B 47 FB 83
     medium / max shock ventilation kitchen
@@ -417,7 +417,7 @@ mode: single
 
 Control heating and cooling
 ```
-alias: VZT - rizeni topení a chlazení
+alias: VZT - řízeni topení a chlazení
 description: >-
   VZT nastavování teploty topení, blokování topení podle ceny, chlazení pøi
   nadbytku FVE
@@ -483,7 +483,7 @@ action:
             domain: select
             entity_id: select.esp_intenzita
             type: select_option
-            option: Støední
+            option: Střední
     else:
       - alias: kontrola nadbytku energie pro chlazeni
         if:
