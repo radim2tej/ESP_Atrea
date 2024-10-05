@@ -309,16 +309,14 @@ The requests packet from the CP07 controller to the Atrea unit:
 - 0xF5 0x00 0x01 [intensity 1,2,4] [mode 1,2,4,8,16] 0x02 [flp 1,2] [temp 0,1,2,3] 0x00 [crc]
     - intensity is 1=off, 2=medium or 4=max
     - modes:
-        - pressure ventilation: mode = 1, flp = 1, temp = 0
-        - dependent circulation: mode = 4, flp = 2, temp = 3 or 0
-        - circulation: mode = 4, flp = 1, temp = 3 or 0
-        - circulation ventilation: mode = 8, flp = 1, temp = 3 or 2 (0 in summer?)
-        - equal pressure ventilation: mode = 0x10, flp = 1, temp = 0, 2, 3
-        - cooling (not cooling): mode = 1, flp = 2, temp = 0
-        - cooling (cooling): mode = 1, flp = 2, temp = 1
+        - pressure ventilation (PV): mode = 1, flp = 1, temp = 0
+        - dependent circulation (CZ): mode = 4, flp = 2, temp = 3 or 0
+        - circulation (C): mode = 4, flp = 1, temp = 3 or 0
+        - circulation ventilation (CV): mode = 8, flp = 1, temp = 3 or 2 (0 in summer?)
+        - equal pressure ventilation (RV): mode = 0x10, flp = 1, temp = 0, 2, 3
+        - cooling: mode = 1, flp = 2, temp = 0 or 1
     - flp: 0x01 or 0x02 = ? (flap)
-    - temp: 0x01 = heating / cooling, 0x02 = heating season (for new fw CP-07?)
-    - temp: 0, 1 = cooling during pressure ventilaton otherwise heating
+    - temp: 0x01 = heating / cooling, 0x02 = heating season (for new fw CP07?)
 
 The responds packet from the Atrea unit to the CP07 controller:
 - 0xF5 0x00 0x01 [mode2 0,1,2,4,5,8,16] [flags: intensity [0,1,2], errorB 0x04, heating 0x08, shock vent. 0x10, ? 0x20] [errors] [TE] [TA] x [crc]
