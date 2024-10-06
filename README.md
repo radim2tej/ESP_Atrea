@@ -21,9 +21,8 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
     max ventilation
       [CP-07]: F5 00 01 04 10 02 01 00 00 97
       [ATREA]: F5 00 01 10 02 00 3D 48 FB 34
-    medium / max shock ventilation WC
+    medium / max shock ventilation
       [ATREA]: F5 00 01 10 12 00 3B 45 FB 10
-    medium / max shock ventilation kitchen
       [ATREA]: F5 00 01 10 32 00 3B 48 FB 61
 #### heating season, not heating
     off ventilation
@@ -97,9 +96,9 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
       [ATREA]: F5 00 01 08 0A 00 3D 5E FB B6
     medium / max shock ventilation WC
       [ATREA]: F5 00 01 08 19 00 3C 56 FB 59
+      [ATREA]: F5 00 01 08 39 00 3C 54 FB 30
       [ATREA]: F5 00 01 08 1A 00 3C 58 FB CB
-      [ATREA]: F5 00 01 08 39 00 3C 54 FB 30    // ?
-      [ATREA]: F5 00 01 08 3A 00 3C 56 FB EF    // ?
+      [ATREA]: F5 00 01 08 3A 00 3C 56 FB EF
     medium / max shock ventilation kitchen
       [ATREA]: F5 00 01 10 1A 00 3D 49 FB B2    // RV mode, electric boiler heating
       [ATREA]: F5 00 01 10 3A 00 3C 49 FB E1    // RV mode, electric boiler heating
@@ -124,7 +123,7 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
 #### heating season, not heating
     off ventilation
       [CP-07]: F5 00 01 01 04 02 02 02 00 6A 
-      [ATREA]: F5 00 01 00 20 00 3D 4C FB 2F    // 0x20 respond from 2nd 0x02 
+      [ATREA]: F5 00 01 00 20 00 3D 4C FB 2F
     medium ventilation
       [CP-07]: F5 00 01 02 04 02 02 02 00 33 
       [ATREA]: F5 00 01 04 20 00 3C 4B FB 36    // standby
