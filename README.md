@@ -329,7 +329,7 @@ The responds packet from the Atrea unit to the CP07 controller:
         - circulation ventilation: mode2 = 8, flag = 1 or 2
         - equal pressure ventilation: mode2 = 16, flag = 0x21 or 0x22
         - cooling: mode2 = 5, flags = 0x21 or 0x22
-        - heating: mode2 = 4 (circulation dep. and circulation), 8 (circulation vent.), 16 (equal press. vent.), flags = 9 (circulation) or 0x29 (other)
+        - heating: mode2 = 4 (circulation dep. and circulation), 8 (circulation vent.), 16 (equal press. vent.), flags = 1 or 2 + 0X08
     - intensity: 0=off, 1=medium or 2=max
     - shock ventilation flag 0x10 (0x31 or 0x32 with intensity 1 or 2)
     - errorB: 0x04 = filter clogged
