@@ -313,9 +313,9 @@ The requests packet from the CP07 controller to the Atrea unit:
         - dependent circulation (CZ): mode = 4, flp = 2, temp = 0, 2, 3
         - circulation (C): mode = 4, flp = 1, temp = 0, 2, 3
         - circulation ventilation (CV): mode = 8, flp = 1, temp = 0, 2, 3
-        - equal pressure ventilation (RV): mode = 0x10, flp = 1, temp = 0, 2, 3
+        - equal pressure ventilation (RV): mode = 16, flp = 1, temp = 0, 2, 3
         - cooling: mode = 1, flp = 2, temp = 0, 1
-    - flp: 0x01 or 0x02 = ? (flap, motor)
+    - flp: 0x01 or 0x02
     - temp: bit 0x01 = heating / cooling, bit 0x02 = heating season (for new fw CP07?)
 
 The responds packet from the Atrea unit to the CP07 controller:
@@ -323,8 +323,9 @@ The responds packet from the Atrea unit to the CP07 controller:
     - modes:
         - nothing: mode2 = 0, flags = 0 or 0x20
         - pressure ventilation: mode2 = 1, flags = 1 or 2
-        - dependent circulation: mode2 = 2, flags = 0x20
         - circulation: mode2 = 4, flag = 1 or 2
+        - dependent circulation standby: mode2 = 4, flags = 0x20
+        - dependent circulation ventilation: mode2 = 8, flags = 0x21 or 0x22
         - circulation ventilation: mode2 = 8, flag = 1 or 2
         - equal pressure ventilation: mode2 = 16, flag = 0x21 or 0x22
         - cooling: mode2 = 5, flags = 0x21 or 0x22
