@@ -310,28 +310,28 @@ The requests packet from the CP07 controller to the Atrea unit:
     - intensity is 1=off, 2=medium or 4=max
     - modes:
         - pressure ventilation (PV): mode = 1, flp = 1, temp = 0
-        - dependent circulation (CZ): mode = 4, flp = 2, temp = 3 or 0
-        - circulation (C): mode = 4, flp = 1, temp = 3 or 0
-        - circulation ventilation (CV): mode = 8, flp = 1, temp = 3 or 2 (0 in summer?)
+        - dependent circulation (CZ): mode = 4, flp = 2, temp = 0, 2, 3
+        - circulation (C): mode = 4, flp = 1, temp = 0, 2, 3
+        - circulation ventilation (CV): mode = 8, flp = 1, temp = 0, 2, 3
         - equal pressure ventilation (RV): mode = 0x10, flp = 1, temp = 0, 2, 3
-        - cooling: mode = 1, flp = 2, temp = 0 or 1
-    - flp: 0x01 or 0x02 = ? (flap)
-    - temp: 0x01 = heating / cooling, 0x02 = heating season (for new fw CP07?)
+        - cooling: mode = 1, flp = 2, temp = 0, 1
+    - flp: 0x01 or 0x02 = ? (flap, motor)
+    - temp: bit 0x01 = heating / cooling, bit 0x02 = heating season (for new fw CP07?)
 
 The responds packet from the Atrea unit to the CP07 controller:
 - 0xF5 0x00 0x01 [mode2 0,1,2,4,5,8,16] [flags: intensity [0,1,2], errorB 0x04, heating 0x08, shock vent. 0x10, ? 0x20] [errors] [TE] [TA] x [crc]
     - modes:
         - nothing: mode2 = 0, flags = 0 or 0x20
-            - value 0x20 of flags possibly means state of the flaps (its similar as flp)
         - pressure ventilation: mode2 = 1, flags = 1 or 2
         - dependent circulation: mode2 = 2, flags = 0x20
         - circulation: mode2 = 4, flag = 1 or 2
         - circulation ventilation: mode2 = 8, flag = 1 or 2
         - equal pressure ventilation: mode2 = 16, flag = 0x21 or 0x22
         - cooling: mode2 = 5, flags = 0x21 or 0x22
-        - heating: mode2 = 4 (circulation dep. and circulation), 8 (circulation vent.), 16 (equal press. vent.), flags = 1 or 2 + 0X08
+        - heating: mode2 = 4 (circulation dep. and circulation), 8 (circulation vent.), 16 (equal press. vent.), flags = 1 or 2 + 0x08
     - intensity: 0=off, 1=medium or 2=max
     - shock ventilation flag 0x10 (0x31 or 0x32 with intensity 1 or 2)
+    - ? 0x20: flap, bypass, state of system or output?
     - errorB: 0x04 = filter clogged
     - errors: 1=TE error, 2=TI2 error, 4=recuperator freezing, 8=TA error, 16=1st.freezing protection, 32=2nd.freezing protection, 64=active STOP, 128=communication error
     - outdoor temperature = TE-50
