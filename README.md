@@ -111,10 +111,11 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
     medium ventilation
       [CP-07]: F5 00 01 02 04 02 02 00 00 A2
       [ATREA]: F5 00 01 04 20 00 3C 4B FB 36    // standby
-      [ATREA]: F5 00 01 08 21 00 3E 4A FB 0D    // circulation ventilation CV
+      [ATREA]: F5 00 01 08 21 00 3E 4A FB 0D    // ventilation (CV mode)
     max ventilation
       [CP-07]: F5 00 01 04 04 02 02 00 00 10
-      [ATREA]: F5 00 01 04 20 00 3B 4A FB 88
+      [ATREA]: F5 00 01 04 20 00 3B 4A FB 88    // standby
+      [ATREA]: F5 00 01 08 22 00 3E 4A FB xx    // ventilation (CV mode)
     medium / max shock ventilation WC
       [ATREA]: F5 00 01 04 31 00 3B 49 FB 6C
       [ATREA]: F5 00 01 04 32 00 3B 49 FB 22
@@ -127,11 +128,11 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
     medium ventilation
       [CP-07]: F5 00 01 02 04 02 02 02 00 33 
       [ATREA]: F5 00 01 04 20 00 3C 4B FB 36    // standby
-      [ATREA]: F5 00 01 08 21 00 3E 4A FB 0D    // circulation ventilation CV
+      [ATREA]: F5 00 01 08 21 00 3E 4A FB 0D    // ventilation (CV mode)
     max ventilation
       [CP-07]: F5 00 01 04 04 02 02 02 00 81 
       [ATREA]: F5 00 01 04 20 00 3C 4B FB 36    // standby
-      [ATREA]: F5 00 01 08 22 00 3E 4A FB xx    // circulation ventilation CV
+      [ATREA]: F5 00 01 08 22 00 3E 4A FB xx    // ventilation (CV mode)
     medium / max shock ventilation WC
       [ATREA]: F5 00 01 04 31 00 3C 4A FB 43
       [ATREA]: F5 00 01 04 32 00 3D 57 FB C3
@@ -143,10 +144,12 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
       [ATREA]: F5 00 01 00 20 00 3D 58 FB F8
     medium ventilation
       [CP-07]: F5 00 01 02 04 02 02 03 00 F7 
-      [ATREA]: F5 00 01 04 29 00 3D 57 FB CF
+      [ATREA]: F5 00 01 04 29 00 3D 57 FB CF    // standby
+      [ATREA]:                                  // ventilation with heating
     max ventilation
       [CP-07]: F5 00 01 04 04 02 02 03 00 45 
-      [ATREA]: F5 00 01 04 2A 00 3D 55 FB 10
+      [ATREA]: F5 00 01 04 2A 00 3D 55 FB 10    // standby
+      [ATREA]:                                  // ventilation with heating
     medium / max shock ventilation WC
       [ATREA]: F5 00 01 04 39 00 3C 53 FB 23
       [ATREA]: F5 00 01 04 3A 00 3D 55 FB 6C
@@ -221,13 +224,13 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
       [ATREA]: F5 00 01 00 20 00 3B 44 FB 88
     medium cooling
       [CP-07]: F5 00 01 02 01 02 02 00 00 xx
-      [ATREA]: F5 00 01 05 21 00 3D 42 FB D5    // todo test cooling flag 21 - it;s ok?
+      [ATREA]: F5 00 01 05 21 00 3D 42 FB D5    // todo test cooling flag 21 - it's ok?
     max cooling
       [CP-07]: F5 00 01 04 01 02 02 00 00 xx
-      [ATREA]: F5 00 01 05 22 00 3D 49 FB B8    // todo test cooling flag 22 - it;s ok?
+      [ATREA]: F5 00 01 05 22 00 3D 49 FB B8    // todo test cooling flag 22 - it's ok?
     medium / max shock ventilation WC
-      [ATREA]: F5 00 01 01 31 00 3B 49 FB 87    // todo test cooling flag 31 - it;s ok?
-      [ATREA]: F5 00 01 01 32 00 3B 49 FB C9    // todo test cooling flag 32 - it;s ok?
+      [ATREA]: F5 00 01 01 31 00 3B 49 FB 87    // todo test cooling flag 31 - it's ok?
+      [ATREA]: F5 00 01 01 32 00 3B 49 FB C9    // todo test cooling flag 32 - it's ok?
     medium / max shock ventilation kitchen
       [ATREA]: F5 00 01 01 31 00 3B 44 FB 0E
 #### not heating season, cooling
@@ -310,8 +313,8 @@ The requests packet from the CP07 controller to the Atrea unit:
     - intensity is 1=off, 2=medium or 4=max
     - modes:
         - pressure ventilation (PV): mode = 1, flp = 1, temp = 0
-        - dependent circulation (CZ): mode = 4, flp = 2, temp = 0, 2, 3
         - circulation (C): mode = 4, flp = 1, temp = 0, 2, 3
+        - dependent circulation (CZ): mode = 4, flp = 2, temp = 0, 2, 3
         - circulation ventilation (CV): mode = 8, flp = 1, temp = 0, 2, 3
         - equal pressure ventilation (RV): mode = 16, flp = 1, temp = 0, 2, 3
         - cooling: mode = 1, flp = 2, temp = 0, 1
@@ -327,7 +330,7 @@ The responds packet from the Atrea unit to the CP07 controller:
         - dependent circulation standby: mode2 = 4, flags = 0x20
         - dependent circulation ventilation: mode2 = 8, flags = 0x21 or 0x22
         - circulation ventilation: mode2 = 8, flag = 1 or 2
-        - equal pressure ventilation: mode2 = 16, flag = 0x21 or 0x22
+        - equal pressure ventilation: mode2 = 16, flag = 0x21 or 0x22 (electric boiler heating)
         - cooling: mode2 = 5, flags = 0x21 or 0x22
         - heating: mode2 = 4 (circulation dep. and circulation), 8 (circulation vent.), 16 (equal press. vent.), flags = 1 or 2 + 0x08
     - intensity: 0=off, 1=medium or 2=max
