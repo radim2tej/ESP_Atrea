@@ -224,13 +224,14 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
       [ATREA]: F5 00 01 00 20 00 3B 44 FB 88
     medium cooling
       [CP-07]: F5 00 01 02 01 02 02 00 00 xx
-      [ATREA]: F5 00 01 05 21 00 3D 42 FB D5    // todo test cooling flag 21 - it's ok?
+      [ATREA]: F5 00 01 05 20 00 3D 42 FB xx
     max cooling
       [CP-07]: F5 00 01 04 01 02 02 00 00 xx
-      [ATREA]: F5 00 01 05 22 00 3D 49 FB B8    // todo test cooling flag 22 - it's ok?
+      [CP-07]: F5 00 01 04 01 01 02 00 00 xx
+      [ATREA]: F5 00 01 05 20 00 3D 49 FB xx
     medium / max shock ventilation WC
-      [ATREA]: F5 00 01 01 31 00 3B 49 FB 87    // todo test cooling flag 31 - it's ok?
-      [ATREA]: F5 00 01 01 32 00 3B 49 FB C9    // todo test cooling flag 32 - it's ok?
+      [ATREA]: F5 00 01 01 31 00 3B 49 FB 87
+      [ATREA]: F5 00 01 01 32 00 3B 49 FB C9
     medium / max shock ventilation kitchen
       [ATREA]: F5 00 01 01 31 00 3B 44 FB 0E
 #### cooling
