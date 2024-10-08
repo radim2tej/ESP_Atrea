@@ -321,10 +321,15 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
     - flp: 0x01 or 0x02
     - temp: bit 0x01 = heating / cooling, bit 0x02 = heating season (for new fw CP07?)
 
-- 0xF5 [id1 0x41,0x42,0x43] [id2 0x01] [circulation] [node DA2] [engine MC 0,1,2,3] [engine MV 0,1,2] [bypass 1, ZR 2, pump 4, boiler 8, output OC1 16, output EXT 32] 0x00 [crc]
+- 0xF5 [id1 0x41,0x42,0x43] [id2 0x01] [circulation] [DA2] [MC] [MV] [bits] 0x00 [crc]
+    - simul. voltage circulation: 0=0V, 1V=0x1A 9V=0xE6, 10V0xFF
+    - simul. voltage node DA2: 0=0V, 1V=0x1A 9V=0xE6, 10V0xFF
+    - engine MC: 0,1,2,3
+    - engine MV: 0,1,2
+    - bits: bypass 1, ZR 2, pump 4, boiler 8, output OC1 16, output EXT 32
 
 ### The responds packet with the same id1 and id2 from the Atrea unit to the CP07 controller:
-- 0xF5 [id1 0x00] [id2 0x01] [mode2 0,1,2,4,5,8,16] [flags: intensity [0,1,2], errorB 0x04, heating 0x08, shock vent. 0x10, ? 0x20] [errors] [temp TE] [temp TA] x [crc]
+- 0xF5 [id1 0x00] [id2 0x01] [mode2 0,1,2,4,5,8,16] [flags: intensity [0,1,2], errorB 0x04, heating 0x08, shock vent. 0x10, ? 0x20] [errors] [TE] [TA] x [crc]
     - modes:
         - nothing: mode2 = 0, flags = 0 or 0x20
         - pressure ventilation: mode2 = 1, flags = 1 or 2
@@ -343,18 +348,24 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
     - outdoor temperature = TE-50
     - radiator temperature = TA-50
 
-- 0xF5 [id1 0x00] [id2 0x03] [0x60 + power inputs D1-D3 1,2,4] 0x0A 0x00 0x00 0x00 0x81 [crc]
+- 0xF5 [id1 0x00] [id2 0x03] [0x60 + power inputs D1-D4 1,2,4,8] 0x0A 0x00 0x00 0x00 0x81 [crc]
+    - power inputs: D1-D3 WC and bathroom 1,2,4, D4 kitchen 8, D11 ?
+  
 - 0xF5 [id1 0x02] [id2 0x03] 0xFF 0x33 0x82 0xEC 0xFF 0xCB [crc]
-- 0xF5 [id1 0x01] [id2 0x03] 0xFF [temp TI2] [temp TE] 0x39 0x00 0x99 [crc]
-    - outdoor temperature = TE-?
-    - behind recuperator temperature = TI2-?
+  
+- 0xF5 [id1 0x01] [id2 0x03] 0xFF [TA] [TI2] [TE] 0x00 0x99 [crc]
+    - radiator temperature = TA-50
+    - behind recuperator temperature = TI2-50
+    - outdoor temperature = TE-50
 
-- 0xF5 [id1 0x41] [id2 0x01] [temp TA] [temp TI2] [temp TE] 0x00 0x00 0x00 [crc]
-    - radiator temperature = TA-?
-    - behind recuperator temperature = TI2-?
-    - outdoor temperature = TE-?
+- 0xF5 [id1 0x41] [id2 0x01] [TA] [TI2] [TE] 0x00 0x00 0x00 [crc]
+    - radiator temperature = TA
+    - behind recuperator temperature = TI2
+    - outdoor temperature = TE
+      
 - 0xF5 [id1 0x42] [id2 0x01] 0xFF 0x33 0x82 0xEC 0xFF 0x0B [crc]
-- 0xF5 [id1 0x43] [id2 0x01] 0x03 [input D1 D2 D3] 0x00 0x00 0x00 0x00 [crc]
+  
+- 0xF5 [id1 0x43] [id2 0x01] 0x03 [D1-D3] 0x00 0x00 0x00 0x00 [crc]
 
 # Instalation
 Programming of the module uses the ESPHome environment. The code is written in C and in YAML (espatrea.h espatrea.yaml). The files are moved to configuration/esphome. The wifi password is in secrets.yaml . In espatrea.yaml, edit the API Key and OTA passwords.
