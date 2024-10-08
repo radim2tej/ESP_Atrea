@@ -307,9 +307,9 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
 ![panel 2](atrea2.png)
 
 # Decode packets
-### operating mode
-The requests packet from the CP07 controller to the Atrea unit:
-- 0xF5 0x00 0x01 [intensity 1,2,4] [mode 1,2,4,8,16] 0x02 [flp 1,2] [temp 0,1,2,3] 0x00 [crc]
+### The requests packet from the CP07 controller to the Atrea unit:
+- 0xF5 [id1 0,1,2] [id2 1,3] [intensity 1,2,4] [mode 1,2,4,8,16] 0x02 [flp 1,2] [temp 0,1,2,3] 0x00 [crc]
+    - id1 and id2: 0 1, 0 3, 1 3, 2 3
     - intensity is 1=off, 2=medium or 4=max
     - modes:
         - pressure ventilation (PV): mode = 1, flp = 1, temp = 0
@@ -321,8 +321,10 @@ The requests packet from the CP07 controller to the Atrea unit:
     - flp: 0x01 or 0x02
     - temp: bit 0x01 = heating / cooling, bit 0x02 = heating season (for new fw CP07?)
 
-The responds packet from the Atrea unit to the CP07 controller:
-- 0xF5 0x00 0x01 [mode2 0,1,2,4,5,8,16] [flags: intensity [0,1,2], errorB 0x04, heating 0x08, shock vent. 0x10, ? 0x20] [errors] [TE] [TA] x [crc]
+- 0xF5 [id1 0x41,0x42,0x43] [id2 0x01] [circulation] [node DA2] [engine MC 0,1,2,3] [engine MV 0,1,2] [bypass 1, ZR 2, pump 4, boiler 8, output OC1 16, output EXT 32] 0x00 [crc]
+
+### The responds packet with the same id1 and id2 from the Atrea unit to the CP07 controller:
+- 0xF5 [id1 0x00] [id2 0x01] [mode2 0,1,2,4,5,8,16] [flags: intensity [0,1,2], errorB 0x04, heating 0x08, shock vent. 0x10, ? 0x20] [errors] [temp TE] [temp TA] x [crc]
     - modes:
         - nothing: mode2 = 0, flags = 0 or 0x20
         - pressure ventilation: mode2 = 1, flags = 1 or 2
@@ -341,26 +343,18 @@ The responds packet from the Atrea unit to the CP07 controller:
     - outdoor temperature = TE-50
     - radiator temperature = TA-50
 
-### servis menu
-The requests packets from the CP07 controller to the ATREA unit:
-- 0xF5 x x [intensity] [mode] 0x02 [flp] [temp] 0x00 [crc]
-  
-The responds packets from the ATREA unit to the CP07 controller:
-- 0xF5 0x00 0x01 [mode2] [intensity, errorB, heating, shock vent., ?] [errors] [TE] [TA] x [crc]
-- 0xF5 0x00 0x03 [0x60 + power inputs D1-D3 1,2,4] 0x0A 0x00 0x00 0x00 0x81 [crc]
-- 0xF5 0x02 0x03 0xFF 0x33 0x82 0xEC 0xFF 0xCB [crc]
-- 0xF5 0x01 0x03 0xFF [temp TI2 - behind recuperator] [temp TE - outdoor] 0x39 0x00 0x99 [crc]
+- 0xF5 [id1 0x00] [id2 0x03] [0x60 + power inputs D1-D3 1,2,4] 0x0A 0x00 0x00 0x00 0x81 [crc]
+- 0xF5 [id1 0x02] [id2 0x03] 0xFF 0x33 0x82 0xEC 0xFF 0xCB [crc]
+- 0xF5 [id1 0x01] [id2 0x03] 0xFF [temp TI2] [temp TE] 0x39 0x00 0x99 [crc]
+    - outdoor temperature = TE-?
+    - behind recuperator temperature = TI2-?
 
-### servis menu / outputs control
-The requests packets from the CP07 controller to the ATREA unit:
-- 0xF5 0x41 0x01 [circulation] [node DA2] [engine MC 0,1,2,3] [engine MV 0,1,2] [bypass 1, ZR 2, pump 4, boiler 8, output OC1 16, output EXT 32] 0x00 [crc]
-- 0xF5 0x42 0x01 [circulation] [node DA2] [engine MC 0,1,2,3] [engine MV 0,1,2] [bypass 1, ZR 2, pump 4, boiler 8, output OC1 0x10, output EXT 0x20] 0x00 [crc]
-- 0xF5 0x43 0x01 [circulation] [node DA2] [engine MC 0,1,2,3] [engine MV 0,1,2] [bypass 1, ZR 2, pump 4, boiler 8, output OC1 0x10, output EXT 0x20] 0x00 [crc]
-
-The responds packets from the ATREA unit to the CP07 controller:
-- 0xF5 0x41 0x01 [temp TA] [temp TI2] [temp TE] 0x00 0x00 0x00 [crc]
-- 0xF5 0x42 0x01 0xFF 0x33 0x82 0xEC 0xFF 0x0B [crc]
-- 0xF5 0x43 0x01 0x03 [input D1 D2 D3] 0x00 0x00 0x00 0x00 [crc]
+- 0xF5 [id1 0x41] [id2 0x01] [temp TA] [temp TI2] [temp TE] 0x00 0x00 0x00 [crc]
+    - radiator temperature = TA-?
+    - behind recuperator temperature = TI2-?
+    - outdoor temperature = TE-?
+- 0xF5 [id1 0x42] [id2 0x01] 0xFF 0x33 0x82 0xEC 0xFF 0x0B [crc]
+- 0xF5 [id1 0x43] [id2 0x01] 0x03 [input D1 D2 D3] 0x00 0x00 0x00 0x00 [crc]
 
 # Instalation
 Programming of the module uses the ESPHome environment. The code is written in C and in YAML (espatrea.h espatrea.yaml). The files are moved to configuration/esphome. The wifi password is in secrets.yaml . In espatrea.yaml, edit the API Key and OTA passwords.
