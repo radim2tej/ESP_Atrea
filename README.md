@@ -203,7 +203,7 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
     medium / max shock ventilation kitchen
       [ATREA]: F5 00 01 10 1A 00 3C 53 FB 12    // RV mode, electric boiler heating
 
-## operating mode pressure ventilation, not heating season (PV)
+## operating mode pressure ventilation (PV)
     off ventilation
       [CP-07]: F5 00 01 01 01 02 01 00 00 CD
       [ATREA]: F5 00 01 00 00 00 3B 46 FB E1
@@ -218,7 +218,7 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
       [ATREA]: F5 00 01 01 12 00 3B 47 FB ED
       
 ## operating mode cooling
-#### not heating season, not cooling
+#### not cooling
     cooling off
       [CP-07]: F5 00 01 01 01 02 02 00 00 xx
       [ATREA]: F5 00 01 00 20 00 3B 44 FB 88
@@ -233,7 +233,7 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
       [ATREA]: F5 00 01 01 32 00 3B 49 FB C9    // todo test cooling flag 32 - it's ok?
     medium / max shock ventilation kitchen
       [ATREA]: F5 00 01 01 31 00 3B 44 FB 0E
-#### not heating season, cooling
+#### cooling
     cooling off
       [CP-07]: F5 00 01 01 01 02 02 01 00 ED
       [ATREA]: F5 00 01 00 20 00 3B 44 FB 88
