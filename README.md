@@ -354,8 +354,8 @@ The responds packets from the ATREA unit to the CP07 controller:
 ### servis menu / outputs control
 The requests packets from the CP07 controller to the ATREA unit:
 - 0xF5 0x41 0x01 [circulation] [node DA2] [engine MC 0,1,2,3] [engine MV 0,1,2] [bypass 1, ZR 2, pump 4, boiler 8, output OC1 16, output EXT 32] 0x00 [crc]
-- 0xF5 0x42 0x01 x x x x [bypass 1, ZR 2, pump 4, boiler 8, output OC1 0x10, output EXT 0x20] 0x00 [crc]
-- 0xF5 0x43 0x01 x x x x [bypass 1, ZR 2, pump 4, boiler 8, output OC1 0x10, output EXT 0x20] 0x00 [crc]
+- 0xF5 0x42 0x01 [circulation] [node DA2] [engine MC 0,1,2,3] [engine MV 0,1,2] [bypass 1, ZR 2, pump 4, boiler 8, output OC1 0x10, output EXT 0x20] 0x00 [crc]
+- 0xF5 0x43 0x01 [circulation] [node DA2] [engine MC 0,1,2,3] [engine MV 0,1,2] [bypass 1, ZR 2, pump 4, boiler 8, output OC1 0x10, output EXT 0x20] 0x00 [crc]
 
 The responds packets from the ATREA unit to the CP07 controller:
 - 0xF5 0x41 0x01 [temp TA] [temp TI2] [temp TE] 0x00 0x00 0x00 [crc]
