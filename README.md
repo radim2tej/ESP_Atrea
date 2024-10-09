@@ -322,8 +322,8 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
     - temp: bit 0x01 = heating / cooling, bit 0x02 = heating season (for new fw CP07?)
 
 - 0xF5 [id1 0x41,0x42,0x43] [id2 0x01] [circulation] [DA2] [MC] [MV] [bits] 0x00 [crc]
-    - simul. voltage circulation flap: 0=0V, 1V=0x1A 9V=0xE6, 10V=0xFF
-    - simul. voltage node DA2: 0=0V, 1V=0x1A 9V=0xE6, 10V=0xFF
+    - simul. voltage circulation flap: 0=0V..10V=0xFF
+    - simul. voltage node DA2: 0=0V..10V=0xFF
     - engine MC: 0,1,2,3
     - engine MV: 0,1,2
     - bits: bypass 1, ZR 2, pump 4, boiler 8, output OC1 16, output EXT 32
@@ -350,7 +350,9 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
 
 - 0xF5 [id1 0x00] [id2 0x03] [0x60 + power inputs D1-D4 1,2,4,8] 0x0A [i1 0x00] [i2 0x00] [i3 0x00] 0x81 [crc]
     - power inputs: D1-D3 WC and bathroom 1,2,4, D4 kitchen 8, D11 ?
-    - i1-i3: I thing voltage in1-in3 0=0V, 1V=0x1A 9V=0xE6, 10V=0xFF
+    - mode: 0=off, 2 PV=medium or C medium, 3=PV max or C max, 5=RV medium, 10=RV max or shock ventilation, 6=CV medium, 7=CV max
+    - i1-i3: I thing voltage in1-in3 0=0V..10V=0xFF
+    - bits: ZR 1, bypass 2
   
 - 0xF5 [id1 0x02] [id2 0x03] 0xFF 0x33 0x82 0xEC 0xFF 0xCB [crc]
   
