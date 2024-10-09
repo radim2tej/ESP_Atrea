@@ -322,7 +322,7 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
     - temp: bit 0x01 = heating / cooling, bit 0x02 = heating season (for new fw CP07?)
 
 - 0xF5 [id1 0x41,0x42,0x43] [id2 0x01] [circulation] [DA2] [MC] [MV] [bits] 0x00 [crc]
-    - simul. voltage circulation: 0=0V, 1V=0x1A 9V=0xE6, 10V=0xFF
+    - simul. voltage circulation flap: 0=0V, 1V=0x1A 9V=0xE6, 10V=0xFF
     - simul. voltage node DA2: 0=0V, 1V=0x1A 9V=0xE6, 10V=0xFF
     - engine MC: 0,1,2,3
     - engine MV: 0,1,2
@@ -354,7 +354,8 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
   
 - 0xF5 [id1 0x02] [id2 0x03] 0xFF 0x33 0x82 0xEC 0xFF 0xCB [crc]
   
-- 0xF5 [id1 0x01] [id2 0x03] 0xFF [TA] [TI2] [TE] 0x00 0x99 [crc]
+- 0xF5 [id1 0x01] [id2 0x03] [circulation] [TA] [TI2] [TE] 0x00 0x99 [crc]
+    - circulation flap 0-255 = 0-10V (adding fresh air 0-0%, 255-100%)
     - radiator temperature = TA-50
     - behind recuperator temperature = TI2-50
     - outdoor temperature = TE-50
