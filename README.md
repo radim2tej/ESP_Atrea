@@ -348,11 +348,11 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
     - outdoor temperature = TE-50
     - radiator temperature = TA-50
 
-- 0xF5 [id1 0x00] [id2 0x03] [0x60 + power inputs D1-D4 1,2,4,8] 0x0A [i1 0x00] [i2 0x00] [i3 0x00] 0x81 [crc]
+- 0xF5 [id1 0x00] [id2 0x03] [0x60 + power inputs D1-D4 1,2,4,8] [mode] [i1 0x00] [i2 0x00] [i3 0x00] [bits] [crc]
     - power inputs: D1-D3 WC and bathroom 1,2,4, D4 kitchen 8, D11 ?
     - mode: 0=off, 2=PV medium or C medium, 3=PV max or C max, 5=RV medium, 10=RV max or shock ventilation, 6=CV medium, 7=CV max
     - i1-i3: I thing voltage in1-in3 0=0V..10V=0xFF
-    - bits: 1=ground cooler/closing flap SR, 2=bypass SB
+    - bits: 1=ground cooler/input flap SR, 2=bypass SB
   
 - 0xF5 [id1 0x02] [id2 0x03] 0xFF 0x33 0x82 0xEC 0xFF 0xCB [crc]
   
