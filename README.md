@@ -309,7 +309,7 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
 
 # Decode packets
 ### The requests packet from the CP07 controller to the Atrea unit:
-- 0xF5 [id1 0,1,2] [id2 1,3] [intensity 1,2,4] [mode 1,2,4,8,16] [1,2] [1,2] [temp 0,1,2,3] 0x00 [crc]
+- 0xF5 [id1 0,1,2] [id2 1,3] [intensity 1,2,4] [mode 1,2,4,8,16] [1,2] [flp 1,2] [temp 0,1,2,3] 0x00 [crc]
     - id1 and id2: 0 1, 0 3, 1 3, 2 3
     - intensity is 1=off, 2=medium or 4=max
     - modes:
@@ -342,7 +342,7 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
         - heating: mode2 = 4 (circulation dep. and circulation), 8 (circulation vent.), 16 (equal press. vent.), flags = 1 or 2 + 0x08
     - intensity: 0=off, 1=medium or 2=max
     - shock ventilation flag 0x10 (0x31 or 0x32 with intensity 1 or 2)
-    - ? 0x20: flap, bypass, state of system or output?
+    - ? 0x20: ?
     - errorB: 0x04 = filter clogged
     - errors: 1=TE error, 2=TI2 error, 4=recuperator freezing, 8=TA error, 16=1st.freezing protection, 32=2nd.freezing protection, 64=active STOP, 128=communication error
     - outdoor temperature = TE-50
@@ -350,9 +350,9 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
 
 - 0xF5 [id1 0x00] [id2 0x03] [0x60 + power inputs D1-D4 1,2,4,8] 0x0A [i1 0x00] [i2 0x00] [i3 0x00] 0x81 [crc]
     - power inputs: D1-D3 WC and bathroom 1,2,4, D4 kitchen 8, D11 ?
-    - mode: 0=off, 2 PV=medium or C medium, 3=PV max or C max, 5=RV medium, 10=RV max or shock ventilation, 6=CV medium, 7=CV max
+    - mode: 0=off, 2=PV medium or C medium, 3=PV max or C max, 5=RV medium, 10=RV max or shock ventilation, 6=CV medium, 7=CV max
     - i1-i3: I thing voltage in1-in3 0=0V..10V=0xFF
-    - bits: ZR 1, bypass 2
+    - bits: 1=ground cooler/closing flap SR, 2=bypass SB
   
 - 0xF5 [id1 0x02] [id2 0x03] 0xFF 0x33 0x82 0xEC 0xFF 0xCB [crc]
   
