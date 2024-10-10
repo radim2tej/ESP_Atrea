@@ -330,7 +330,7 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
     - bits: 1=bypass SB, 2=ground cooler/intake flap SR (for input E1), 4=pump YV (heat pump heating), 8=electric boiler K, 16=output OC1, 32=output EXT
 
 ### The responds packet with the same id1 and id2 from the Atrea unit to the CP07 controller:
-- 0xF5 [id1 0x00] [id2 0x01] [mode2 0,1,2,4,5,8,16] [flags: intensity [0,1,2], errorB 0x04, heating 0x08, shock vent. 0x10, ? 0x20] [errors] [TE] [TA] x [crc]
+- 0xF5 [id1 0x00] [id2 0x01] [mode2 0,1,2,4,5,8,16] [flags: intensity 0,1,2, errorB 0x04, heating 0x08, shock vent. 0x10, ? 0x20] [errors] [TE] [TA] x [crc]
     - modes:
         - nothing: mode2 = 0, flags = 0 or 0x20
         - pressure ventilation: mode2 = 1, flags = 1 or 2
@@ -345,7 +345,7 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
     - shock ventilation flag 0x10 (0x31 or 0x32 with intensity 1 or 2)
     - ? 0x20: ?
     - errorB: 0x04 = filter clogged
-    - errors: 1=TE error, 2=TI2 error, 4=recuperator freezing, 8=TA error, 16=1st.freezing protection, 32=2nd.freezing protection, 64=active STOP, 128=communication error
+    - errors: 1=TE error, 2=TI2 error, 4=recuperator freezing, 8=TA error, 16=1st.freezing protection (TI2 < 12°C), 32=2nd.freezing protection (TI2 < 7°C), 64=active STOP, 128=communication error
     - outdoor temperature = TE-50
     - radiator temperature = TA-50
 
