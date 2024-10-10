@@ -326,7 +326,7 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
     - simul. voltage node DA2: 0-255=0V-10V
     - engine MC: 0,1,2,3
     - engine MV: 0,1,2
-    - bits: 1=bypass SB, 2=ground cooler/intake flap SR, 4=pump YV (heat pump heating), 8=electric boiler K, 16=output OC1, 32=output EXT
+    - bits: 1=bypass SB, 2=ground cooler/intake flap SR (for input E1), 4=pump YV (heat pump heating), 8=electric boiler K, 16=output OC1, 32=output EXT
 
 ### The responds packet with the same id1 and id2 from the Atrea unit to the CP07 controller:
 - 0xF5 [id1 0x00] [id2 0x01] [mode2 0,1,2,4,5,8,16] [flags: intensity [0,1,2], errorB 0x04, heating 0x08, shock vent. 0x10, ? 0x20] [errors] [TE] [TA] x [crc]
@@ -352,7 +352,7 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
     - power inputs: D1-D3 WC and bathroom 1,2,4, D4 kitchen 8, D11 ?
     - mode: 0=off, 2=PV medium or C medium, 3=PV max or C max, 5=RV medium, 10=RV max or shock ventilation, 6=CV medium, 7=CV max
     - i1-i3: I thing voltage in1-in3 0=0V..10V=0xFF
-    - bits: 1=ground cooler/intake flap SR, 2=bypass SB, 4=pump YV (heat pump heating), 8=electric boiler K, 32=output OC1 (heat pump cooling)
+    - bits: 1=ground cooler/intake flap SR (for input E1), 2=bypass SB, 4=pump YV (heat pump heating), 8=electric boiler K, 32=output OC1 (heat pump cooling)
   
 - 0xF5 [id1 0x02] [id2 0x03] 0xFF 0x33 0x82 0xEC 0xFF 0xCB [crc]
   
