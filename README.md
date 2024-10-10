@@ -309,16 +309,16 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
 
 # Decode packets
 ### The requests packet from the CP07 controller to the Atrea unit:
-- 0xF5 [id1 0,1,2] [id2 1,3] [intensity 1,2,4] [mode 1,2,4,8,16] [1,2] [flp 1,2] [temp 0,1,2,3] 0x00 [crc]
+- 0xF5 [id1 0,1,2] [id2 1,3] [intensity 1,2,4] [mode 1,2,4,8,16] [1,2] [md2 1,2] [temp 0,1,2,3] 0x00 [crc]
     - id1 and id2: 0 1, 0 3, 1 3, 2 3
     - intensity is 1=off, 2=medium or 4=max
     - modes:
-        - pressure ventilation (PV): mode = 1, flp = 1, temp = 0
-        - circulation (C): mode = 4, flp = 1, temp = 0, 2, 3
-        - dependent circulation (CZ): mode = 4, flp = 2, temp = 0, 2, 3
-        - circulation ventilation (CV): mode = 8, flp = 1, temp = 0, 2, 3
-        - equal pressure ventilation (RV): mode = 16, flp = 1, temp = 0, 2, 3
-        - cooling: mode = 1, flp = 2, temp = 0, 1
+        - pressure ventilation (PV): mode = 1, md2 = 1, temp = 0
+        - circulation (C): mode = 4, md2 = 1, temp = 0, 2, 3
+        - dependent circulation (CZ): mode = 4, md2 = 2, temp = 0, 2, 3
+        - circulation ventilation (CV): mode = 8, md2 = 1, temp = 0, 2, 3
+        - equal pressure ventilation (RV): mode = 16, md2 = 1, temp = 0, 2, 3
+        - cooling: mode = 1, md2 = 2, temp = 0, 1
     - temp: bit 0x01 = heating / cooling, bit 0x02 = heating season (for new fw CP07?)
 
 - 0xF5 [id1 0x41,0x42,0x43] [id2 0x01] [circulation] [DA2] [MC] [MV] [bits] 0x00 [crc]
