@@ -327,7 +327,7 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
     - simul. voltage node DA2: 0-255=0V-10V
     - engine MC: 0,1,2,3
     - engine MV: 0,1,2
-    - bits: 1=bypass SB, 2=ground cooler/intake flap SR (for input E1), 4=pump YV (heat pump heating), 8=electric boiler K, 16=output OC1, 32=output EXT
+    - bits: 1=bypass SB, 2=ground cooler/intake flap SR (for input E1), 4=pump YV (heat pump heating), 8=electric/gas boiler K, 16=output OC1 (heat pump cooling), 32=output EXT
 
 ### The responds packet with the same id1 and id2 from the Atrea unit to the CP07 controller:
 - 0xF5 [id1 0x00] [id2 0x01] [mode2 0,1,2,4,5,8,16] [flags: intensity 0,1,2, errorB 0x04, heating 0x08, shock vent. 0x10, ? 0x20] [errors] [TE] [TA] x [crc]
@@ -338,7 +338,7 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
         - dependent circulation standby: mode2 = 4, flags = 0x20
         - dependent circulation ventilation: mode2 = 8, flags = 0x21 or 0x22
         - circulation ventilation: mode2 = 8, flag = 1 or 2
-        - equal pressure ventilation: mode2 = 16, flag = 0x21 or 0x22 (electric boiler heating)
+        - equal pressure ventilation: mode2 = 16, flag = 0x21 or 0x22 (electric/gas boiler heating)
         - cooling: mode2 = 5, flags = 0x21 or 0x22
         - heating: mode2 = 4 (circulation dep. and circulation), 8 (circulation vent.), 16 (equal press. vent.), flags = 1 or 2 + 0x08
     - intensity: 0=off, 1=medium or 2=max
@@ -353,7 +353,7 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
     - power inputs: D1-D3 WC and bathroom 1,2,4, D4 kitchen 8, D11 ?
     - mode: 0=off, 2=PV medium or C medium, 3=PV max or C max, 5=RV medium, 10=RV max or shock ventilation, 6=CV medium, 7=CV max
     - i1-i3: I thing voltage in1-in3 0-255=0V-10V
-    - bits: 1=ground cooler/intake flap SR (for input E1), 2=bypass SB, 4=pump YV (heat pump heating), 8=electric boiler K, 32=output OC1 (heat pump cooling)
+    - bits: 1=ground cooler/intake flap SR (for input E1), 2=bypass SB, 4=pump YV (heat pump heating), 8=electric/gas boiler K, 32=output OC1 (heat pump cooling)
   
 - 0xF5 [id1 0x01] [id2 0x03] [circulation flap DA1] [TA] [TI2] [TE] 0x00 0x99 [crc]
     - intake circulation flap DA1 0-255=0V-10V (adding fresh air 0-0%, 255-100%)
