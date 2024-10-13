@@ -309,17 +309,26 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
 
 # Decode packets
 ### The requests packet from the CP07 controller to the Atrea unit:
-- 0xF5 [id1 0,1,2] [id2 1,3] [intensity 1,2,4] [mode 1,2,4,8,16] [md1 1,2] [md2 1,2] [temp 0,1,2,3] 0x00 [crc]
+- 0xF5 [id1 0,1,2] [id2 1,3] [intensity 1,2,4] [mode 1,2,4,8,16] [bps 1,2] [md 1,2] [temp 0,1,2,3] 0x00 [crc]
     - id1 and id2: 0 1, 0 3, 1 3, 2 3
     - intensity is 1=off, 2=medium or 4=max
     - modes:
-        - pressure ventilation (PV): mode = 1, md2 = 1, temp = 0
-        - circulation (C): mode = 4, md2 = 1, temp = 0, 2, 3
-        - dependent circulation (CZ): mode = 4, md2 = 2, temp = 0, 2, 3
-        - circulation ventilation (CV): mode = 8, md2 = 1, temp = 0, 2, 3
-        - equal pressure ventilation (RV): mode = 16, md2 = 1, temp = 0, 2, 3
-        - cooling: mode = 1, md2 = 2, temp = 0, 1
-    - md1: ?
+        - pressure ventilation (PV): mode = 1, bps = 2, md = 1, temp = 0
+        - circulation (C): mode = 4, bps = 2, md = 1, temp = 0,2,3
+        - dependent circulation (CZ): mode = 4, bps = 2, md = 2, temp = 0,2,3
+        - circulation ventilation (CV): mode = 8, bps = 1,2, md = 1, temp = 0,2,3
+        - equal pressure ventilation (RV): mode = 16, bps = 1,2, md = 1, temp = 0,2,3
+        - cooling: mode = 1, bps = 2, md = 2, temp = 0,1
+    - bps: flap bypass for RV and CV (1 bypass, 2 recuperator)
+        - CP07 for not heating season and RV sets bps 1 for TE greater equality 16°C and less than the set temperature
+        - CP07 for not heating season and RV sets bps 2 for TE less equality 14°C or greater setpoint temperature
+        - CP07 for not heating season and CV sets bps 1 for TE greater equality 13°C and less than the set temperature
+        - CP07 for not heating season and CV sets bps 2 for TE less equality 11°C or greater setpoint temperature
+        - CP07 for heating season, not heating and RV sets bps 1 for TE greater equality 18°C and less than the set temperature
+        - CP07 for heating season, not heating and RV sets bps 2 for TE less equality 16°C or greater setpoint temperature
+        - CP07 for heating season, not heating and CV sets bps 1 for TE greater equality 16°C and less than the set temperature
+        - CP07 for heating season, not heating and CV sets bps 2 for TE less equality 14°C or greater setpoint temperature
+        - CP07 for heating season, heating sets bps 2
     - temp: bit 0x01 = heating / cooling, bit 0x02 = heating season (for new fw CP07?)
 
 - 0xF5 [id1 0x41,0x42,0x43] [id2 0x01] [circulation flap DA1] [node DA2] [MC] [MV] [bits] 0x00 [crc]
