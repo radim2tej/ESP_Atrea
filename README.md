@@ -320,14 +320,14 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
         - equal pressure ventilation (RV): mode = 16, bps = 1,2, md = 1, temp = 0,2,3
         - cooling: mode = 1, bps = 2, md = 2, temp = 0,1
     - bps: flap bypass for RV and CV (1 bypass, 2 recuperator)
-        - CP07 for not heating season and RV sets bps 1 for TE greater equality 16°C and less than the set temperature
-        - CP07 for not heating season and RV sets bps 2 for TE less equality 14°C or greater setpoint temperature
-        - CP07 for not heating season and CV sets bps 1 for TE greater equality 13°C and less than the set temperature
-        - CP07 for not heating season and CV sets bps 2 for TE less equality 11°C or greater setpoint temperature
-        - CP07 for heating season, not heating and RV sets bps 1 for TE greater equality 18°C and less than the set temperature
-        - CP07 for heating season, not heating and RV sets bps 2 for TE less equality 16°C or greater setpoint temperature
-        - CP07 for heating season, not heating and CV sets bps 1 for TE greater equality 16°C and less than the set temperature
-        - CP07 for heating season, not heating and CV sets bps 2 for TE less equality 14°C or greater setpoint temperature
+        - CP07 for not heating season and RV sets bps 1 for TE greater equality 16°C and TE less than the requested interior temperature
+        - CP07 for not heating season and RV sets bps 2 for TE less equality 14°C or TE greater than the requested interior temperature
+        - CP07 for not heating season and CV sets bps 1 for TE greater equality 13°C and TE less than the requested interior temperature
+        - CP07 for not heating season and CV sets bps 2 for TE less equality 11°C or TE greater than the requested interior temperature
+        - CP07 for heating season, not heating and RV sets bps 1 for TE greater equality 18°C and TE less than the requested interior temperature
+        - CP07 for heating season, not heating and RV sets bps 2 for TE less equality 16°C or TE greater than the requested interior temperature
+        - CP07 for heating season, not heating and CV sets bps 1 for TE greater equality 16°C and TE less than the requested interior temperature
+        - CP07 for heating season, not heating and CV sets bps 2 for TE less equality 14°C or TE greater than the requested interior temperature
         - CP07 for heating season, heating sets bps 2
     - temp: bit 0x01 = heating / cooling, bit 0x02 = heating season (for new fw CP07?)
 
