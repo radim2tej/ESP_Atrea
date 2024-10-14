@@ -29,10 +29,10 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
       [CP-07]: F5 00 01 01 10 02 01 02 00 ED 
       [ATREA]: F5 00 01 00 00 00 3D 47 FB F4
     medium ventilation
-      [CP-07]: F5 00 01 02 10 02 01 02 00 B4 
+      [CP-07]: F5 00 01 02 10 02 01 02 00 B4 (F5 00 01 02 10 01 01 02 00 xx)
       [ATREA]: F5 00 01 10 01 00 3D 48 FB 7A
     max ventilation
-      [CP-07]: F5 00 01 04 10 02 01 02 00 06 
+      [CP-07]: F5 00 01 04 10 02 01 02 00 06 (F5 00 01 04 10 01 01 02 00 xx) 
       [ATREA]: F5 00 01 10 02 00 3D 47 FB 2C
     medium / max shock ventilation
       [ATREA]: F5 00 01 10 32 00 3C 48 FB 1B
@@ -59,10 +59,10 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
       [ATREA]: F5 00 01 00 00 00 3B 47 FB xx
       [ATREA]: F5 00 01 00 20 00 3B 47 FB DD
     medium ventilation
-      [CP-07]: F5 00 01 02 08 02 01 00 00 67
+      [CP-07]: F5 00 01 02 08 02 01 00 00 67 (F5 00 01 02 08 01 01 00 00 xx)
       [ATREA]: F5 00 01 08 01 00 3B 49 FB 95
     max ventilation
-      [CP-07]: F5 00 01 04 08 02 01 00 00 D5
+      [CP-07]: F5 00 01 04 08 02 01 00 00 D5 (F5 00 01 04 08 01 01 00 00 xx)
       [ATREA]: F5 00 01 08 02 00 3B 49 FB DB
     medium / max shock ventilation WC
       [ATREA]: F5 00 01 08 31 00 3B 47 FB CD
@@ -74,10 +74,10 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
       [CP-07]: F5 00 01 01 08 02 01 02 00 AF 
       [ATREA]: F5 00 01 00 00 00 3D 48 FB EC
     medium ventilation
-      [CP-07]: F5 00 01 02 08 02 01 02 00 F6 
+      [CP-07]: F5 00 01 02 08 02 01 02 00 F6 (F5 00 01 02 08 01 01 02 00 xx)
       [ATREA]: F5 00 01 08 01 00 3D 48 FB 80
     max ventilation
-      [CP-07]: F5 00 01 04 08 02 01 02 00 44 
+      [CP-07]: F5 00 01 04 08 02 01 02 00 44 (F5 00 01 04 08 01 01 02 00 xx)
       [ATREA]: F5 00 01 08 02 00 3D 48 FB CE
     medium / max shock ventilation WC
       [ATREA]: F5 00 01 08 11 00 3D 49 FB 38
