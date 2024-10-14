@@ -2,10 +2,10 @@
 
 // pakety
 uint8_t cpData[10] = {0xff};	// paket z CP07
-uint8_t espData[10] = {0xF5, 0, 1, 0, 0, 2, 1, 2, 0} ;       	// paket ovladace do Atrey
+uint8_t espData[10] = {0xF5, 0, 1, 0, 0, 2, 1, 2, 0} ;       	// paket Espe do Atrey
 uint8_t atreaData01[10] = {0xff};	// paket z Atrey
-uint8_t atreaData03[10];
-uint8_t atreaData13[10];
+uint8_t atreaData03[10] = {0xff};	// paket z Atrey
+uint8_t atreaData13[10] = {0xff};	// paket z Atrey
 
 // casy paketu
 uint32_t timeCp = 0;
@@ -17,6 +17,7 @@ uint32_t timeAtrea13 = 0;
 // casovace pro aktualizaci dat
 uint32_t zmenaCpText = 0;
 uint32_t zmenaCpBinSen = 0;
+uint32_t zmenaEspBinSen = 0;
 uint32_t zmenaAtreaText = 0;
 uint32_t zmenaAtreaSensor01 = 0;
 uint32_t zmenaAtreaSensor13 = 0;
@@ -185,6 +186,8 @@ class AtreaUart : public Component, public UARTDevice, public TextSensor {
       for (i = 0; i < 10; i++)
         write(espData[i]);
       ESP_LOGD("ESP", "%02X %02X %02X %02X %02X %02X %02X %02X %02X %02X", espData[0], espData[1], espData[2], espData[3], espData[4], espData[5], espData[6], espData[7], espData[8], espData[9]);
+      timeEsp = ms;
+      zmenaEspBinSen = timeEsp - MAXINTERVAL;
     }
 
     while (available()) {
@@ -450,13 +453,17 @@ class AtreaBinarySensor : public PollingComponent {
     if (ms > zmenaCpBinSen + MAXINTERVAL) { // aktualizuj při změně nebo co MAXINTERVAL    
       zmenaCpBinSen = ms;
       if (cpData[0] == 0xF5 && ms < (timeCp + 15000)) {
-        esp_aktivni_ovladac->publish_state(false);
         cp07_bypass->publish_state(cpData[5] == 1);
+        esp_aktivni_ovladac->publish_state(false);
       } else {
         esp_aktivni_ovladac->publish_state(true);
-        esp_bypass->publish_state(espData[5] == 1);
       }
+    }
+    
+    if (ms > zmenaEspBinSen + MAXINTERVAL) { // aktualizuj při změně nebo co MAXINTERVAL    
+      zmenaEspBinSen = ms;
+      if (id(esp_aktivni_ovladac).state)
+        esp_bypass->publish_state(espData[5] == 1);
     }
   }
 };
-
