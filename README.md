@@ -310,77 +310,85 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
 # Decode packets
 ### The requests packet from the CP07 controller to the Atrea unit:
 - 0xF5 [id1 0,1,2] [id2 1,3] [intensity 1,2,4] [mode 1,2,4,8,16] [bps 1,2] [md 1,2] [temp 0,1,2,3] 0x00 [crc]
-    - id1 and id2: 0 1, 0 3, 1 3, 2 3
-    - intensity is 1=off, 2=medium or 4=max
-    - modes:
-        - pressure ventilation (PV): mode = 1, bps = 2, md = 1, temp = 0
-        - circulation (C): mode = 4, bps = 2, md = 1, temp = 0,2,3
-        - dependent circulation (CZ): mode = 4, bps = 2, md = 2, temp = 0,2,3
-        - circulation ventilation (CV): mode = 8, bps = 1,2, md = 1, temp = 0,2,3
-        - equal pressure ventilation (RV): mode = 16, bps = 1,2, md = 1, temp = 0,2,3
-        - cooling: mode = 1, bps = 2, md = 2, temp = 0,1
-    - bps: flap bypass for RV and CV (1 bypass, 2 recuperator)
-        - CP07 for not heating season and RV sets bps 1 for TE greater equality 16°C and TE less than the requested interior temperature
-        - CP07 for not heating season and RV sets bps 2 for TE less equality 14°C or TE greater than the requested interior temperature
-        - CP07 for not heating season and CV sets bps 1 for TE greater equality 13°C and TE less than the requested interior temperature
-        - CP07 for not heating season and CV sets bps 2 for TE less equality 11°C or TE greater than the requested interior temperature
-        - CP07 for heating season, not heating and RV sets bps 1 for TE greater equality 18°C and TE less than the requested interior temperature
-        - CP07 for heating season, not heating and RV sets bps 2 for TE less equality 16°C or TE greater than the requested interior temperature
-        - CP07 for heating season, not heating and CV sets bps 1 for TE greater equality 16°C and TE less than the requested interior temperature
-        - CP07 for heating season, not heating and CV sets bps 2 for TE less equality 14°C or TE greater than the requested interior temperature
-        - CP07 for heating season, heating sets bps 2
-    - temp: bit 0x01 = heating / cooling, bit 0x02 = heating season (for new fw CP07?)
+  - id1 and id2: 0 1, 0 3, 1 3, 2 3
+  - intensity is 1=off, 2=medium or 4=max
+  - modes:
+    - pressure ventilation (PV): mode = 1, bps = 2, md = 1, temp = 0
+    - circulation (C): mode = 4, bps = 2, md = 1, temp = 0,2,3
+    - dependent circulation (CZ): mode = 4, bps = 2, md = 2, temp = 0,2,3
+    - circulation ventilation (CV): mode = 8, bps = 1,2, md = 1, temp = 0,2,3
+    - equal pressure ventilation (RV): mode = 16, bps = 1,2, md = 1, temp = 0,2,3
+    - cooling: mode = 1, bps = 2, md = 2, temp = 0,1
+  - bps: bypass flap for RV and CV (1 bypass, 2 recuperator), in other modes is 2 
+  - temp: bit 0x01 = heating / cooling, bit 0x02 = heating season (for new fw CP07?)
 
 - 0xF5 [id1 0x41,0x42,0x43] [id2 0x01] [circulation flap DA1] [node DA2] [MC] [MV] [bits] 0x00 [crc]
-    - simul. voltage intake circulation flap DA1: 0-255=0V-10V (adding fresh air 0-0%, 255-100%)
-    - simul. voltage node DA2: 0-255=0V-10V
-    - engine MC: 0,1,2,3
-    - engine MV: 0,1,2
-    - bits: 1=bypass SB, 2=ground cooler/intake flap SR (for input E1), 4=pump YV (heat pump heating), 8=electric/gas boiler K, 16=output OC1 (heat pump cooling), 32=output EXT
+  - simul. voltage intake circulation flap DA1: 0-255=0V-10V (adding fresh air 0-0%, 255-100%)
+  - simul. voltage node DA2: 0-255=0V-10V
+  - engine MC: 0,1,2,3
+  - engine MV: 0,1,2
+  - bits: 1=bypass SB, 2=ground cooler/intake flap SR (for input E1), 4=pump YV (heat pump heating), 8=electric/gas boiler K, 16=output OC1 (heat pump cooling), 32=output EXT
 
 ### The responds packet with the same id1 and id2 from the Atrea unit to the CP07 controller:
 - 0xF5 [id1 0x00] [id2 0x01] [mode2 0,1,2,4,5,8,16] [flags: intensity 0,1,2, errorB 0x04, heating 0x08, shock vent. 0x10, ? 0x20] [errors] [TE] [TA] x [crc]
-    - modes:
-        - nothing: mode2 = 0, flags = 0 or 0x20
-        - pressure ventilation: mode2 = 1, flags = 1 or 2
-        - circulation: mode2 = 4, flag = 1 or 2
-        - dependent circulation standby: mode2 = 4, flags = 0x20
-        - dependent circulation ventilation: mode2 = 8, flags = 0x21 or 0x22
-        - circulation ventilation: mode2 = 8, flag = 1 or 2
-        - equal pressure ventilation: mode2 = 16, flag = 0x21 or 0x22 (electric/gas boiler heating)
-        - cooling: mode2 = 5, flags = 0x21 or 0x22
-        - heating: mode2 = 4 (circulation dep. and circulation), 8 (circulation vent.), 16 (equal press. vent.), flags = 1 or 2 + 0x08
-    - intensity: 0=off, 1=medium or 2=max
-    - shock ventilation flag 0x10 (0x31 or 0x32 with intensity 1 or 2)
-    - ? 0x20: ?
-    - errorB: 0x04 = filter clogged
-    - errors: 1=TE error, 2=TI2 error, 4=recuperator freezing, 8=TA error, 16=1st.freezing protection (TI2 < 12°C), 32=2nd.freezing protection (TI2 < 7°C), 64=active STOP, 128=communication error
-    - outdoor temperature = TE-50
-    - radiator temperature = TA-50
+  - modes:
+    - nothing: mode2 = 0, flags = 0 or 0x20
+    - pressure ventilation: mode2 = 1, flags = 1 or 2
+    - circulation: mode2 = 4, flag = 1 or 2
+    - dependent circulation standby: mode2 = 4, flags = 0x20
+    - dependent circulation ventilation: mode2 = 8, flags = 0x21 or 0x22
+    - circulation ventilation: mode2 = 8, flag = 1 or 2
+    - equal pressure ventilation: mode2 = 16, flag = 0x21 or 0x22 (electric/gas boiler heating)
+    - cooling: mode2 = 5, flags = 0x21 or 0x22
+    - heating: mode2 = 4 (circulation dep. and circulation), 8 (circulation vent.), 16 (equal press. vent.), flags = 1 or 2 + 0x08
+  - intensity: 0=off, 1=medium or 2=max
+  - shock ventilation flag 0x10 (0x31 or 0x32 with intensity 1 or 2)
+  - ? 0x20: ?
+  - errorB: 0x04 = filter clogged
+  - errors: 1=TE error, 2=TI2 error, 4=recuperator freezing, 8=TA error, 16=1st.freezing protection (TI2 < 12°C), 32=2nd.freezing protection (TI2 < 7°C), 64=active STOP, 128=communication error
+  - outdoor temperature = TE-50
+  - radiator temperature = TA-50
 
 - 0xF5 [id1 0x00] [id2 0x03] [0x60 + power inputs D1-D4 1,2,4,8] [mode] [i1 0x00] [i2 0x00] [i3 0x00] [bits] [crc]
-    - power inputs: D1-D3 WC and bathroom 1,2,4, D4 kitchen 8, D11 ?
-    - mode: 0=off, 2=PV medium or C medium, 3=PV max or C max, 5=RV medium, 10=RV max or shock ventilation, 6=CV medium, 7=CV max
-    - i1-i3: I thing voltage in1-in3 0-255=0V-10V
-    - bits: 1=ground cooler/intake flap SR (for input E1), 2=bypass SB, 4=pump YV (heat pump heating), 8=electric/gas boiler K, 32=output OC1 (heat pump cooling)
-  
+  - power inputs: D1-D3 WC and bathroom 1,2,4, D4 kitchen 8, D11 ?
+  - mode: 0=off, 2=PV medium or C medium, 3=PV max or C max, 5=RV medium, 10=RV max or shock ventilation, 6=CV medium, 7=CV max
+  - i1-i3: I thing voltage in1-in3 0-255=0V-10V
+  - bits: 1=ground cooler/intake flap SR (for input E1), 2=bypass SB, 4=pump YV (heat pump heating), 8=electric/gas boiler K, 32=output OC1 (heat pump cooling)
+ 
 - 0xF5 [id1 0x01] [id2 0x03] [circulation flap DA1] [TA] [TI2] [TE] 0x00 0x99 [crc]
-    - intake circulation flap DA1 0-255=0V-10V (adding fresh air 0-0%, 255-100%)
-    - radiator temperature = TA-50
-    - behind recuperator temperature = TI2-50
-    - outdoor temperature = TE-50
+  - intake circulation flap DA1 0-255=0V-10V (adding fresh air 0-0%, 255-100%)
+  - radiator temperature = TA-50
+  - behind recuperator temperature = TI2-50
+  - outdoor temperature = TE-50
 
 - 0xF5 [id1 0x02] [id2 0x03] 0xFF 0x33 0x82 0xEC 0xFF 0xCB [crc]
   
 - 0xF5 [id1 0x41] [id2 0x01] [TA] [TI2] [TE] 0x00 0x00 0x00 [crc]
-    - radiator temperature = TA
-    - behind recuperator temperature = TI2
-    - outdoor temperature = TE
+  - radiator temperature = TA
+  - behind recuperator temperature = TI2
+  - outdoor temperature = TE
       
 - 0xF5 [id1 0x42] [id2 0x01] 0xFF 0x33 0x82 0xEC 0xFF 0x0B [crc]
   
 - 0xF5 [id1 0x43] [id2 0x01] 0x03 [D1..4] 0x00 0x00 0x00 0x00 [crc]
-    - D1..4: D1-D3 WC and bathroom 2,4,8, D4 kitchen 16
+  - D1..4: D1-D3 WC and bathroom 2,4,8, D4 kitchen 16
+
+# Byte bps control with CP07 controller
+In RV and CV mode, the CP07 controller sets the byte bps according to the outdoor TE temperature, room temperature, and target temperature setpoint. In other modes, the byte bps is set to 2.
+### Rules:
+- for a heating season and active heating the CP07 controller sets bps to 2 
+- for the non-heating season and RV mode
+  - 1 = the outdoor TE temperature is greater than 16°C and both the outdoor TE temperature and the requested indoor temperature are less than the actual room temperature
+  - 2 = the outdoor TE temperature is less than 14°C or the outdoor TE temperature is greater than the actual room temperature or the requested indoor temperature is greater than the actual room temperature
+- for the non-heating season and CV mode
+  - 1 = the outdoor TE temperature is greater than 13°C and both the outdoor TE temperature and the requested indoor temperature are less than the actual room temperature
+  - 2 = the outdoor TE temperature is less than 11°C or the outdoor TE temperature is greater than the actual room temperature or the requested indoor temperature is greater than the actual room temperature
+- for the heating season, not heating and RV mode
+  - 1 = the outdoor TE temperature is greater than 18°C and both the outdoor TE temperature and the requested indoor temperature are less than the actual room temperature
+  - 2 = the outdoor TE temperature is less than 16°C or the outdoor TE temperature is greater than the actual room temperature or the requested indoor temperature is greater than the actual room temperature
+- for the heating season, not heating and CV mode
+  - 1 = the outdoor TE temperature is greater than 16°C and both the outdoor TE temperature and the requested indoor temperature are less than the actual room temperature
+  - 2 = the outdoor TE temperature is less than 14°C or the outdoor TE temperature is greater than the actual room temperature or the requested indoor temperature is greater than the actual room temperature
 
 # Instalation
 Programming of the module uses the ESPHome environment. The code is written in C and in YAML (espatrea.h espatrea.yaml). The files are moved to configuration/esphome. The wifi password is in secrets.yaml . In espatrea.yaml, edit the API Key and OTA passwords.
