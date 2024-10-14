@@ -378,17 +378,17 @@ In RV and CV mode, the CP07 controller sets the byte bps according to the outdoo
 ### Rules:
 - for a heating season and active heating the CP07 controller sets bps to 2 
 - for the heating season, not heating and RV mode
-  - 1 = the outdoor TE temperature is greater than 18°C and both the outdoor TE temperature and the requested indoor temperature are less than the actual room temperature
-  - 2 = the outdoor TE temperature is less than 16°C or the outdoor TE temperature is greater than the actual room temperature or the requested indoor temperature is greater than the actual room temperature
+  - 1 = the outdoor TE temperature is greater or equal than 18°C and both the outdoor TE temperature and the requested indoor temperature are less than the actual room temperature
+  - 2 = the outdoor TE temperature is less than 17°C or the outdoor TE temperature is greater than the actual room temperature or the requested indoor temperature is greater than the actual room temperature
 - for the heating season, not heating and CV mode
-  - 1 = the outdoor TE temperature is greater than 16°C and both the outdoor TE temperature and the requested indoor temperature are less than the actual room temperature
-  - 2 = the outdoor TE temperature is less than 14°C or the outdoor TE temperature is greater than the actual room temperature or the requested indoor temperature is greater than the actual room temperature
+  - 1 = the outdoor TE temperature is greater or equal than 16°C and both the outdoor TE temperature and the requested indoor temperature are less than the actual room temperature
+  - 2 = the outdoor TE temperature is less than 15°C or the outdoor TE temperature is greater than the actual room temperature or the requested indoor temperature is greater than the actual room temperature
 - for the non-heating season and RV mode
-  - 1 = the outdoor TE temperature is greater than 16°C and both the outdoor TE temperature and the requested indoor temperature are less than the actual room temperature
-  - 2 = the outdoor TE temperature is less than 14°C or the outdoor TE temperature is greater than the actual room temperature or the requested indoor temperature is greater than the actual room temperature
+  - 1 = the outdoor TE temperature is greater or equal than 16°C and both the outdoor TE temperature and the requested indoor temperature are less than the actual room temperature
+  - 2 = the outdoor TE temperature is less than 15°C or the outdoor TE temperature is greater than the actual room temperature or the requested indoor temperature is greater than the actual room temperature
 - for the non-heating season and CV mode
-  - 1 = the outdoor TE temperature is greater than 13°C and both the outdoor TE temperature and the requested indoor temperature are less than the actual room temperature
-  - 2 = the outdoor TE temperature is less than 11°C or the outdoor TE temperature is greater than the actual room temperature or the requested indoor temperature is greater than the actual room temperature
+  - 1 = the outdoor TE temperature is greater or equal than 13°C and both the outdoor TE temperature and the requested indoor temperature are less than the actual room temperature
+  - 2 = the outdoor TE temperature is less than 12°C or the outdoor TE temperature is greater than the actual room temperature or the requested indoor temperature is greater than the actual room temperature
 
 # Instalation
 Programming of the module uses the ESPHome environment. The code is written in C and in YAML (espatrea.h espatrea.yaml). The files are moved to configuration/esphome. The wifi password is in secrets.yaml . In espatrea.yaml, edit the API Key and OTA passwords.
