@@ -75,6 +75,7 @@ sensor:
   - platform: homeassistant
     id: esp_teplota_termostatu
     entity_id: sensor.teplota_termostatu
+    unit_of_measurement: "°C"
     internal: true
 
 binary_sensor:
@@ -82,7 +83,7 @@ binary_sensor:
     lambda: |-
       auto atrea = new AtreaBinarySensor();
       App.register_component(atrea);
-      return {atrea->cp07_bypass, atrea->atrea_topi, atrea->atrea_chladi, atrea->atrea_narazove_vetrani, atrea->atrea_fx, atrea->atrea_D1, atrea->atrea_D2, atrea->atrea_D3, atrea->atrea_D4, atrea->atrea_klapka_SR, atrea->atrea_bypass_SB, atrea->atrea_YV, atrea->atrea_K, atrea->atrea_OC1, atrea->esp_aktivni_ovladac, atrea->esp_topna_sezona, atrea->esp_bypass, atrea->esp_topeni, atrea->esp_chlazeni};
+      return {atrea->cp07_bypass, atrea->atrea_topi, atrea->atrea_chladi, atrea->atrea_narazove_vetrani, atrea->atrea_fx, atrea->atrea_D1, atrea->atrea_D2, atrea->atrea_D3, atrea->atrea_D4, atrea->atrea_klapka_SR, atrea->atrea_bypass_SB, atrea->atrea_YV, atrea->atrea_K, atrea->atrea_OC1, atrea->esp_aktivni_ovladac, atrea->esp_topna_sezona, atrea->esp_bypass};
     binary_sensors:
       - name: "CP07 bypass"
       - name: "Atrea topení"
@@ -101,23 +102,6 @@ binary_sensor:
       - name: "ESP aktivní ovladač"
       - name: "ESP topná sezóna"
       - name: "ESP bypass"
-      - name: "ESP topeni"
-      - name: "ESP chlazeni"
-
-switch:
-  - platform: template
-    id: topeni_ctrl
-    optimistic: true
-    turn_on_action:
-      - switch.turn_off: chlazeni_ctrl
-    internal: true
-        
-  - platform: template
-    id: chlazeni_ctrl
-    optimistic: true
-    turn_on_action:
-      - switch.turn_off: topeni_ctrl
-    internal: true      
 
 select:
   - platform: template
@@ -144,29 +128,58 @@ select:
       - Maximální
     initial_option: "Střední"
 
+switch:
+  - platform: template
+    name: "ESP topení"
+    id: esp_topeni
+    optimistic: true
+    turn_on_action:
+      - switch.turn_off: esp_chlazeni
+        
+  - platform: template
+    name: "ESP chlazení"
+    id: esp_chlazeni
+    optimistic: true
+    turn_on_action:
+      - switch.turn_off: esp_topeni
+
 climate:
   - platform: thermostat
     name: "Termostat domu"
     id: termostat_domu
     sensor: esp_teplota_termostatu
-    min_cooling_off_time: 300s
-    min_cooling_run_time: 300s
-    min_heating_off_time: 300s
-    min_heating_run_time: 300s
-    min_idle_time: 30s
+    min_cooling_off_time: 20s
+    min_cooling_run_time: 20s
+    min_heating_off_time: 20s
+    min_heating_run_time: 20s
+    min_idle_time: 20s
     visual:
       min_temperature: 16
       max_temperature: 28
       temperature_step:
         target_temperature: 0.5
-        current_temperature: 0.1    
+        current_temperature: 0.1
+    heat_deadband: 0.25
+    heat_overrun: 0.25
+    cool_deadband: 0.2
+    cool_overrun: 0.2
     cool_action:
-      - switch.turn_on: chlazeni_ctrl
+      - switch.turn_on: esp_chlazeni
     heat_action:
-      - switch.turn_on: topeni_ctrl
+      - switch.turn_on: esp_topeni
     idle_action:
-      - switch.turn_off: chlazeni_ctrl
-      - switch.turn_off: topeni_ctrl
+      - switch.turn_off: esp_chlazeni
+      - switch.turn_off: esp_topeni
+    heat_mode:
+      then:
+        - switch.turn_off: esp_topeni
+    cool_mode:
+      then:
+        - switch.turn_off: esp_chlazeni
+    off_mode:
+      then:
+        - switch.turn_off: esp_chlazeni
+        - switch.turn_off: esp_topeni
     default_preset: Doma
     preset:
       - name: Doma
@@ -174,4 +187,5 @@ climate:
         default_target_temperature_high: 24 °C
       - name: Pryč
         default_target_temperature_low: 18 °C
-        default_target_temperature_high: 25 °C        
+        default_target_temperature_high: 25 °C
+        
