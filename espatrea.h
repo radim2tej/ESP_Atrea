@@ -89,9 +89,9 @@ class AtreaUart : public Component, public UARTDevice, public TextSensor {
     NSLP1;
 
     // úprava topné sezóny podle poadavku topení / chlazení    
-    if (id(topeni_ctrl).state)
+    if (id(esp_topeni).state)
         topna_sezona = true;
-    if ((pozadavek_chlazeni = id(chlazeni_ctrl).state) == true)    
+    if ((pozadavek_chlazeni = id(esp_chlazeni).state) == true)    
         topna_sezona = false;
         
     // generovani paketu ESP ovladace pro Atreu
@@ -124,55 +124,14 @@ class AtreaUart : public Component, public UARTDevice, public TextSensor {
       // intenzita vzduchotechniky
       espData[3] = id(esp_intenzita).state == "Střední" ? 2 : (id(esp_intenzita).state == "Maximální" ? 4 : 1);
       
-      // režim vzduchotechniky
-      if (pozadavek_chlazeni) {   // chlazeni se realizuje bitem termostatu jako topení u PV, nema samostatnou polozku
-        espData[4] = 1;
-        espData[5] = 2;     
-        espData[6] = 2;
-        espData[7] = 1;
-      } else if (id(esp_rezim_vzt).state == "Rovnotlaké větrání") {
-        if (id(topeni_ctrl).state) { // topeni
-//          // rovnotlake vetrani zapina kotel - proto vypinam topeni
-//          espData[4] = 16;	// rovnotlaké větrání
-//          espData[6] = 1;
-//          espData[7] = 2;   // netopim
-          espData[4] = 8;  // rovnotlake vetrani zapina kotel - proto vetram cirkulačním větráním, kdy topi TC
-          espData[6] = 1;
-          espData[7] = 3;  // topi
-        } else {
-          espData[4] = 16;
-          espData[6] = 1;
-          espData[7] = topna_sezona ? 2 : 0;  // netopím
-        }
-      } else if (id(esp_rezim_vzt).state == "Cirkulační větrání") {
-        espData[4] = 8;
-        espData[6] = 1;
-        espData[7] = (topna_sezona ? 2 : 0) | id(topeni_ctrl).state ? 1 : 0;
-      } else if (id(esp_rezim_vzt).state == "Cirkulace") {
-        espData[4] = 4;
-        espData[5] = 2;     
-        espData[6] = 1;
-        espData[7] = (topna_sezona ? 2 : 0) | id(topeni_ctrl).state ? 1 : 0;
-      } else if (id(esp_rezim_vzt).state == "Přetlakové větrání") {
-        espData[4] = 1;
-        espData[5] = 2;     
-        espData[6] = 1;
-        espData[7] = 0;
-      } else /*if (id(esp_rezim_vzt).state == "Cirkulace závislá")*/ {
-        espData[4] = 4;
-        espData[5] = 2;     
-        espData[6] = 2;
-        espData[7] = (topna_sezona ? 2 : 0) | id(topeni_ctrl).state ? 1 : 0;
-      }
-      
       // bypass RV a CV
       if (topna_sezona) {
-        if (atreaData01[6] > id(termostat_domu).current_temperature)  // v topné sezóně pokud je venku tepleji, větrej bypasem
+        if (atreaData01[6] > id(termostat_domu).current_temperature+50)  // v topné sezóně pokud je venku tepleji, větrej bypasem
           espData[5] = 1;
-        else if (atreaData01[6] <= id(termostat_domu).current_temperature - 1)
+        else if (atreaData01[6] < id(termostat_domu).current_temperature+50)
           espData[5] = 2;
       } else {  // netopna sezona
-        if (atreaData01[6] > id(termostat_domu).current_temperature)  // v netopné sezóně pokud je venku tepleji, větrej rekuperatorem
+        if (atreaData01[6] > id(termostat_domu).current_temperature+50)  // v netopné sezóně pokud je venku tepleji, větrej rekuperatorem
           espData[5] = 2;
         else if (id(termostat_domu).target_temperature_low > id(termostat_domu).current_temperature)  // v netopné sezóně pokud je uvnitř chladněji než nastavená teplota, větrej rekuperátorem
           espData[5] = 2;
@@ -187,6 +146,47 @@ class AtreaUart : public Component, public UARTDevice, public TextSensor {
           else if (atreaData01[6] < 15+50)
             espData[5] = 2;
         }
+      }
+      
+      // režim vzduchotechniky
+      if (pozadavek_chlazeni) {   // chlazeni se realizuje bitem termostatu jako topení u PV, nema samostatnou polozku
+        espData[4] = 1;
+        espData[5] = 2;     
+        espData[6] = 2;
+        espData[7] = 1;
+      } else if (id(esp_rezim_vzt).state == "Rovnotlaké větrání") {
+        if (id(esp_topeni).state) { // topeni
+//          // rovnotlake vetrani zapina kotel - proto vypinam topeni
+//          espData[4] = 16;	// rovnotlaké větrání
+//          espData[6] = 1;
+//          espData[7] = 2;   // netopim
+          espData[4] = 8;  // rovnotlake vetrani zapina kotel - proto vetram cirkulačním větráním, kdy topi TC
+          espData[6] = 1;
+          espData[7] = 3;  // topi
+        } else {
+          espData[4] = 16;  // rovnotlaké větrání
+          espData[6] = 1;
+          espData[7] = topna_sezona ? 2 : 0;  // netopím
+        }
+      } else if (id(esp_rezim_vzt).state == "Cirkulační větrání") {
+        espData[4] = 8;
+        espData[6] = 1;
+        espData[7] = (topna_sezona ? 2 : 0) | (id(esp_topeni).state ? 1 : 0);
+      } else if (id(esp_rezim_vzt).state == "Cirkulace") {
+        espData[4] = 4;
+        espData[5] = 2;     
+        espData[6] = 1;
+        espData[7] = (topna_sezona ? 2 : 0) | (id(esp_topeni).state ? 1 : 0);
+      } else if (id(esp_rezim_vzt).state == "Přetlakové větrání") {
+        espData[4] = 1;
+        espData[5] = 2;     
+        espData[6] = 1;
+        espData[7] = 0;
+      } else /*if (id(esp_rezim_vzt).state == "Cirkulace závislá")*/ {
+        espData[4] = 4;
+        espData[5] = 2;     
+        espData[6] = 2;
+        espData[7] = (topna_sezona ? 2 : 0) | (id(esp_topeni).state ? 1 : 0);
       }
       
       espData[9] = crc8(espData, 9);
@@ -381,23 +381,23 @@ class AtreaSensor : public PollingComponent {
     if (ms > zmenaAtreaSensor01 + MAXINTERVAL) { // aktualizuj při změně nebo co MAXINTERVAL
       zmenaAtreaSensor01 = ms;    
       if (atreaData01[0] == 0xF5 && ms < (timeAtrea01 + 15000)) {
-        if (atreaData01[6] > 50-40) {
-            atrea_teplota_TE->publish_state(atreaData01[6] - 50.0);
+        if (atreaData01[6] > -30+50) {
+            atrea_teplota_TE->publish_state(atreaData01[6]-50.0);
             // úprava topné sezóny podle venkovní teploty
-            if (atreaData01[6] > 50+25)
+            if (atreaData01[6] > 25+50)
                 topna_sezona = false;
-            if (atreaData01[6] < 50+5)
+            if (atreaData01[6] < 5+50)
                 topna_sezona = true;
         }
-        if (atreaData01[7] > 50-20)
+        if (atreaData01[7] > -20+50)
             atrea_teplota_TA->publish_state(atreaData01[7] - 50.0);
       }
     }
     if (ms > zmenaAtreaSensor13 + MAXINTERVAL) { // aktualizuj při změně nebo co MAXINTERVAL
       zmenaAtreaSensor13 = ms;    
       if (atreaData13[0] == 0xF5 && ms < (timeAtrea13 + 15000)) {
-        if (atreaData13[5] > 50-10)
-          atrea_teplota_TI2->publish_state(atreaData13[5] - 50.0);
+        if (atreaData13[5] > -10+50)
+          atrea_teplota_TI2->publish_state(atreaData13[5]-50.0);
         atrea_cirkulace->publish_state(atreaData13[3]*100/255);
       }
     }
@@ -423,8 +423,6 @@ class AtreaBinarySensor : public PollingComponent {
   BinarySensor *esp_aktivni_ovladac = new BinarySensor();
   BinarySensor *esp_topna_sezona = new BinarySensor();
   BinarySensor *esp_bypass = new BinarySensor();
-  BinarySensor *esp_topeni = new BinarySensor();
-  BinarySensor *esp_chlazeni = new BinarySensor();
 
   AtreaBinarySensor() : PollingComponent(2000) { }
 
@@ -478,8 +476,6 @@ class AtreaBinarySensor : public PollingComponent {
       if (id(esp_aktivni_ovladac).state) {
         esp_topna_sezona->publish_state(topna_sezona);
         esp_bypass->publish_state(espData[5] == 1);
-        esp_topeni->publish_state(id(topeni_ctrl).state);
-        esp_chlazeni->publish_state(id(chlazeni_ctrl).state);
       }
     }
   }
