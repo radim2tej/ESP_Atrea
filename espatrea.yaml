@@ -12,11 +12,11 @@ logger:
 # Enable Home Assistant API
 api:
   encryption:
-    key: "xxxx"
+    key: "vGmcGeQv1t0YS8dYxiWZ+18dVwOTM8Wd5xJNhZfAHL0="
 
 ota:
   - platform: esphome
-    password: "yyyy"
+    password: "ee63ad1b7179078c6f6551b408078ec2"
 
 wifi:
   ssid: !secret wifi_ssid
@@ -24,7 +24,7 @@ wifi:
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
     ssid: "ESPAtrea Fallback Hotspot"
-    password: "DB0xxxxyhjsK"
+    password: "DB03b2AyhjsK"
   manual_ip:
     static_ip: 192.168.3.204
     gateway: 192.168.3.1
@@ -64,20 +64,25 @@ sensor:
       return {atrea->atrea_teplota_TE, atrea->atrea_teplota_TA, atrea->atrea_teplota_TI2, atrea->atrea_cirkulace};
     sensors:
       - name: "Atrea venkovní teplota"
-        unit_of_measurement: °C
+        unit_of_measurement: "°C"
       - name: "Atrea teplota výměníku"
-        unit_of_measurement: °C
+        unit_of_measurement: "°C"
       - name: "Atrea teplota za rekuperátorem"
-        unit_of_measurement: °C
+        unit_of_measurement: "°C"
       - name: "Atrea přisávání cirkulace"
         unit_of_measurement: "%"
-    
+
+  - platform: homeassistant
+    id: esp_teplota_termostatu
+    entity_id: sensor.teplota_termostatu
+    internal: true
+
 binary_sensor:
   - platform: custom
     lambda: |-
       auto atrea = new AtreaBinarySensor();
       App.register_component(atrea);
-      return {atrea->cp07_bypass, atrea->atrea_topi, atrea->atrea_chladi, atrea->atrea_narazove_vetrani, atrea->atrea_fx, atrea->atrea_D1, atrea->atrea_D2, atrea->atrea_D3, atrea->atrea_D4, atrea->atrea_klapka_SR, atrea->atrea_bypass_SB, atrea->atrea_YV, atrea->atrea_K, atrea->atrea_OC1, atrea->esp_aktivni_ovladac, atrea->esp_bypass};
+      return {atrea->cp07_bypass, atrea->atrea_topi, atrea->atrea_chladi, atrea->atrea_narazove_vetrani, atrea->atrea_fx, atrea->atrea_D1, atrea->atrea_D2, atrea->atrea_D3, atrea->atrea_D4, atrea->atrea_klapka_SR, atrea->atrea_bypass_SB, atrea->atrea_YV, atrea->atrea_K, atrea->atrea_OC1, atrea->esp_aktivni_ovladac, atrea->esp_topna_sezona, atrea->esp_bypass, atrea->esp_topeni, atrea->esp_chlazeni};
     binary_sensors:
       - name: "CP07 bypass"
       - name: "Atrea topení"
@@ -94,22 +99,25 @@ binary_sensor:
       - name: "Atrea IO kotel K"
       - name: "Atrea IO TČ chlazení OC1"
       - name: "ESP aktivní ovladač"
+      - name: "ESP topná sezóna"
       - name: "ESP bypass"
+      - name: "ESP topeni"
+      - name: "ESP chlazeni"
 
 switch:
   - platform: template
-    name: "ESP topení"
-    id: esp_topeni 
+    id: topeni_ctrl
     optimistic: true
     turn_on_action:
-      - switch.turn_off: esp_chlazeni
+      - switch.turn_off: chlazeni_ctrl
+    internal: true
         
   - platform: template
-    name: "ESP chlazení"
-    id: esp_chlazeni
+    id: chlazeni_ctrl
     optimistic: true
     turn_on_action:
-      - switch.turn_off: esp_topeni
+      - switch.turn_off: topeni_ctrl
+    internal: true      
 
 select:
   - platform: template
@@ -123,6 +131,7 @@ select:
       - "Cirkulace"
       - "Cirkulace závislá"
       - "Přetlakové větrání"
+    initial_option: "Cirkulace závislá"
     
   - platform: template
     name: "ESP intenzita"
@@ -133,5 +142,36 @@ select:
       - Vypnuto
       - Střední
       - Maximální
-    initial_option: Střední
+    initial_option: "Střední"
 
+climate:
+  - platform: thermostat
+    name: "Termostat domu"
+    id: termostat_domu
+    sensor: esp_teplota_termostatu
+    min_cooling_off_time: 300s
+    min_cooling_run_time: 300s
+    min_heating_off_time: 300s
+    min_heating_run_time: 300s
+    min_idle_time: 30s
+    visual:
+      min_temperature: 16
+      max_temperature: 28
+      temperature_step:
+        target_temperature: 0.5
+        current_temperature: 0.1    
+    cool_action:
+      - switch.turn_on: chlazeni_ctrl
+    heat_action:
+      - switch.turn_on: topeni_ctrl
+    idle_action:
+      - switch.turn_off: chlazeni_ctrl
+      - switch.turn_off: topeni_ctrl
+    default_preset: Doma
+    preset:
+      - name: Doma
+        default_target_temperature_low: 21.5 °C
+        default_target_temperature_high: 24 °C
+      - name: Pryč
+        default_target_temperature_low: 18 °C
+        default_target_temperature_high: 25 °C        
