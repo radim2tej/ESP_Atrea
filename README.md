@@ -393,6 +393,11 @@ Programming of the module uses the ESPHome environment. The code is written in C
 
 ![chart](atrea3.png)
 
+# Automatic control of air handling modes
+I use an integrated thermostat to set the temperatures. I use a scheduler to set the modes. Usually the unit runs in CZ mode, switches to RV in the morning and then to CV. Then it runs in CZ mode until the evening and then switches to RV, then to C and then to CZ. It varies by day of the week.
+
+![chart](planovac1.png)![chart](planovac2.png)
+
 # Examples of automations
 Solar gain circulation
 ```
@@ -508,12 +513,6 @@ action:
             entity_id: binary_sensor.count_expensive_hours
             state: "on"
         then:
-          - device_id: 904cd0b7d9147d7b3b4ad392bb80d9a8
-            domain: select
-            entity_id: select.esp_intenzita
-            type: select_option
-            option: Vypnuto
-            enabled: false
           - action: climate.set_temperature
             metadata: {}
             data:
@@ -521,12 +520,6 @@ action:
             target:
               entity_id: climate.termostat_domu
         else:
-          - device_id: 904cd0b7d9147d7b3b4ad392bb80d9a8
-            domain: select
-            entity_id: select.esp_intenzita
-            type: select_option
-            option: Střední
-            enabled: false
           - action: climate.set_temperature
             metadata: {}
             data:
@@ -589,7 +582,7 @@ mode: single
 
 Control heatin and cooling bypass
 ```
-alias: VZT - øízení klapky špajzu pro chlazení / topení
+alias: VZT - řízení klapky špajzu pro chlazení / topení
 description: chlazení a topení ve špajzu
 trigger:
   - platform: state
