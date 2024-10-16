@@ -1,7 +1,7 @@
 #include "esphome.h"
 
 // pakety
-uint8_t cpData[10] = {0xff, 0xff};	// paket z CP07
+uint8_t cpData01[10] = {0xff, 0xff};	// paket z CP07
 uint8_t espData[10] = {0xF5, 0, 1, 0, 0, 2, 1, 2, 0} ;       	// paket Esp do Atrey
 uint8_t atreaData01[10] = {0xff, 0xff, 0xff};	// paket z Atrey
 uint8_t atreaData03[10] = {0xff};	// paket z Atrey
@@ -15,14 +15,14 @@ uint8_t atreaData13[10] = {0xff};	// paket z Atrey
 uint32_t timeCp = 0;    // casovac prijmu CP paketu kvůli odesilani ESP paketu
 
 // casovace pro aktualizaci dat
-int32_t zmenaCpText = 0;
-int32_t zmenaCpBinSen = 0;
-int32_t zmenaEspBinSen = 0;
-int32_t zmenaAtreaText = 0;
-int32_t zmenaAtreaSensor01 = 0;
-int32_t zmenaAtreaBinSen01 = 0;
-int32_t zmenaAtreaBinSen03 = 0;
-int32_t zmenaAtreaSensor13 = 0;
+uint32_t zmenaCpText = 0;
+uint32_t zmenaCpBinSen = 0;
+uint32_t zmenaEspBinSen = 0;
+uint32_t zmenaAtreaText = 0;
+uint32_t zmenaAtreaSensor01 = 0;
+uint32_t zmenaAtreaBinSen01 = 0;
+uint32_t zmenaAtreaBinSen03 = 0;
+uint32_t zmenaAtreaSensor13 = 0;
 
 bool pozadavek_chlazeni = false;
 bool narazove_vetrani = false;
@@ -191,7 +191,7 @@ class AtreaUart : public Component, public UARTDevice, public TextSensor {
       
       crc = crc8(espData, 9);
       if (espData[9] != crc)
-        zmenaEspBinSen = ms - MAXINTERVAL;
+        zmenaEspBinSen = ms;
       espData[9] = crc;
 
       for (i = 0; i < 10; i++)
@@ -206,21 +206,21 @@ class AtreaUart : public Component, public UARTDevice, public TextSensor {
           if ((buffer[1] >= 0 && buffer[1] <= 2) && (buffer[2] >= 0 && buffer[2] <= 3)) {
             if (buffer[8] == 0) {  // packet CP07
               timeCp = ms;
-              if (cpData[9] != buffer[9])   // odlisne CRC
-                zmenaCpText = zmenaCpBinSen = ms - MAXINTERVAL;
-              memcpy(cpData, buffer, 10);
+              if (cpData01[9] != buffer[9])   // odlisne CRC
+                zmenaCpText = zmenaCpBinSen = ms;
+              memcpy(cpData01, buffer, 10);
             } else {  // paket Atrea
               if (buffer[1] == 0 && buffer[2] == 1) {	  // packet Atrea01
                 if (atreaData01[9] != buffer[9])   // odlisne CRC
-                  zmenaAtreaText = zmenaAtreaSensor01 = zmenaAtreaBinSen01 = ms - MAXINTERVAL;
+                  zmenaAtreaText = zmenaAtreaSensor01 = zmenaAtreaBinSen01 = ms;
                 memcpy(atreaData01, buffer, 10);
               } else if (buffer[1] == 0 && buffer[2] == 3) {	  // packet Atrea03
                 if (atreaData03[9] != buffer[9])   // odlisne CRC
-                  zmenaAtreaBinSen03 = ms - MAXINTERVAL;
+                  zmenaAtreaBinSen03 = ms;
                 memcpy(atreaData03, buffer, 10);
               } else if (buffer[1] == 1 && buffer[2] == 3) {	  // packet Atrea13
                 if (atreaData13[9] != buffer[9])   // odlisne CRC
-                  zmenaAtreaSensor13 = ms - MAXINTERVAL;
+                  zmenaAtreaSensor13 = ms;
                 memcpy(atreaData13, buffer, 10);
               }
             }
@@ -245,120 +245,116 @@ class AtreaTextSensor : public PollingComponent {
   void update() override {
     uint32_t ms = millis();
 
-    if (ms > zmenaCpText + MAXINTERVAL) { // aktualizuj při změně nebo co MAXINTERVAL    
-      zmenaCpText = ms;    
-      if (cpData[0] == 0xF5) {
-        pozadavek_chlazeni = false;
-        if (cpData[4] == 0x01 && cpData[6] == 0x02) {
-          cp07_rezim->publish_state("Chlazení");              // Chlazeni
-          pozadavek_chlazeni = true;
-        } else if (cpData[4] == 0x01 && cpData[6] == 0x01)
-          cp07_rezim->publish_state("Přetlakové větrání");    // PV
-        else if (cpData[4] == 0x04 && cpData[6] == 0x02)
-          cp07_rezim->publish_state("Cirkulace závislá");     // CZ
-        else if (cpData[4] == 0x04 && cpData[6] == 0x01)
-          cp07_rezim->publish_state("Cirkulace");             // C
-        else if (cpData[4] == 0x08 && cpData[6] == 0x01)
-          cp07_rezim->publish_state("Cirkulační větrání");    // CV
-        else if (cpData[4] == 0x10 && cpData[6] == 0x01)
-          cp07_rezim->publish_state("Rovnotlaké větrání");    // RV
-        else 
-          cp07_rezim->publish_state("???");
+    if (ms >= zmenaCpText && cpData01[0] == 0xF5) { // aktualizuj při změně nebo co MAXINTERVAL    
+      zmenaCpText = ms + MAXINTERVAL;    
+      cpData01[0] = 0xFF;   // zneplatni paket
+      
+      pozadavek_chlazeni = false;
+      if (cpData01[4] == 0x01 && cpData01[6] == 0x02) {
+        cp07_rezim->publish_state("Chlazení");              // Chlazeni
+        pozadavek_chlazeni = true;
+      } else if (cpData01[4] == 0x01 && cpData01[6] == 0x01)
+        cp07_rezim->publish_state("Přetlakové větrání");    // PV
+      else if (cpData01[4] == 0x04 && cpData01[6] == 0x02)
+        cp07_rezim->publish_state("Cirkulace závislá");     // CZ
+      else if (cpData01[4] == 0x04 && cpData01[6] == 0x01)
+        cp07_rezim->publish_state("Cirkulace");             // C
+      else if (cpData01[4] == 0x08 && cpData01[6] == 0x01)
+        cp07_rezim->publish_state("Cirkulační větrání");    // CV
+      else if (cpData01[4] == 0x10 && cpData01[6] == 0x01)
+        cp07_rezim->publish_state("Rovnotlaké větrání");    // RV
+      else 
+        cp07_rezim->publish_state("???");
 	
-        if (cpData[3] == 0x01)
-          cp07_intenzita->publish_state("Vypnuto");
-        else if (cpData[3] == 0x02)
-          cp07_intenzita->publish_state("Střední");
-        else if (cpData[3] == 0x04)
-          cp07_intenzita->publish_state("Maximální");
-        else
-          cp07_intenzita->publish_state("???");
+      if (cpData01[3] == 0x01)
+        cp07_intenzita->publish_state("Vypnuto");
+      else if (cpData01[3] == 0x02)
+        cp07_intenzita->publish_state("Střední");
+      else if (cpData01[3] == 0x04)
+        cp07_intenzita->publish_state("Maximální");
+      else
+        cp07_intenzita->publish_state("???");
 
-        if (cpData[4] == 0x01 && cpData[6] == 0x02 && cpData[7] == 0x01)	// PV
-          cp07_rizeni_teploty->publish_state("Chladí");
-        else if ((cpData[4] == 0x04 || cpData[4] == 0x08 || cpData[4] == 0x10) && cpData[6] == 0x01 && (cpData[7] & 0x01) == 0x01)	// R, CV, C
-          cp07_rizeni_teploty->publish_state("Topí");
-        else if (cpData[4] == 0x04 && cpData[6] == 0x02 && (cpData[7] & 0x01) == 0x01)	// CZ
-          cp07_rizeni_teploty->publish_state("Topí");
-        else
-          cp07_rizeni_teploty->publish_state("Neaktivní");
-          
-        cpData[0] = 0xFF;
-      }
+      if (cpData01[4] == 0x01 && cpData01[6] == 0x02 && cpData01[7] == 0x01)	// PV
+        cp07_rizeni_teploty->publish_state("Chladí");
+      else if ((cpData01[4] == 0x04 || cpData01[4] == 0x08 || cpData01[4] == 0x10) && cpData01[6] == 0x01 && (cpData01[7] & 0x01) == 0x01)	// R, CV, C
+        cp07_rizeni_teploty->publish_state("Topí");
+      else if (cpData01[4] == 0x04 && cpData01[6] == 0x02 && (cpData01[7] & 0x01) == 0x01)	// CZ
+        cp07_rizeni_teploty->publish_state("Topí");
+      else
+        cp07_rizeni_teploty->publish_state("Neaktivní");
     }
 
-    if (ms > zmenaAtreaText + MAXINTERVAL) { // aktualizuj při změně nebo co MAXINTERVAL
+    if (ms >= zmenaAtreaText && atreaData01[0] == 0xF5) { // aktualizuj při změně nebo co MAXINTERVAL
       char strRezim[80];
           
-      zmenaAtreaText = ms;    
-      if (atreaData01[0] == 0xF5) {
-        switch (atreaData01[3]) {
-          case 0x00:
-            strcpy(strRezim, "Vypnuto");                            // 00
-            break;
-          case 0x01:
-            if (atreaData01[4] & 0x20)                              // 01 31 Chlazení s nárazovým větráním
-              strcpy(strRezim, "Chlazení");
-            else
-              strcpy(strRezim, "Přetlakové větrání");               // 01 01 Pretlakove vetrani
-            break;
-          case 0x04:
-            if (atreaData01[4] & 0x20)
-              strcpy(strRezim, "Cirkulace závislá");                // 04 20 Cirkulace závislá
-            else                                                    // 04 31 Nárazové větrání WC
-              strcpy(strRezim, "Cirkulace");                        // 04 01 Cirkulace
-            break;                                                  // 04 11 Cirkulace s nárazovým větráním
-          case 0x05:
-            strcpy(strRezim, "Chlazení");                           // 05 21 Chlazeni
-            break;
-          case 0x08:
-            if (pozadavek_chlazeni)
-              strcpy(strRezim, "Chlazení a větrání");               // 08 ?? Chlazení s periodickým větráním
-            else
-              strcpy(strRezim, "Cirkulační větrání");               // 08 21 Cirkulacni vetrani (také periodické větrání)
-            break;
-          case 0x10:
-            strcpy(strRezim, "Rovnotlaké větrání");                 // 10 21 Rovnotlake větráni
-            break;                                                  // 10 32 Nárazové větráni kuchyň
-          default:
-            strcpy(strRezim, "???");
-        }
-        if ((atreaData01[4] & 0x10) && (atreaData01[4] & 0x03))     // nárazové větrání
-          strcat(strRezim, " + nárazové větrání");
-        atrea_rezim->publish_state(strRezim);
+      zmenaAtreaText = ms + MAXINTERVAL;    
+      atreaData01[0] = 0xFF;   // zneplatni paket
       
-        if ((atreaData01[4] & 0x03) == 0)
-          atrea_intenzita->publish_state("Vypnuto");
-        else if ((atreaData01[4] & 0x03) == 1)
-          atrea_intenzita->publish_state("Střední");
-        else if ((atreaData01[4] & 0x03) == 2)
-          atrea_intenzita->publish_state("Maximální");
-        else
-          atrea_intenzita->publish_state("???");
-
-        if (atreaData01[4] & 0x04)          
-          atrea_chyby->publish_state("zanesený filtr");
-        else if (atreaData01[5] & 0x01)
-          atrea_chyby->publish_state("porucha čidla TE");
-        else if (atreaData01[5] & 0x02)
-          atrea_chyby->publish_state("porucha čidla TI2");
-        else if (atreaData01[5] & 0x04)
-          atrea_chyby->publish_state("zámraz rekuperátoru");
-        else if (atreaData01[5] & 0x08)
-          atrea_chyby->publish_state("porucha čidla TA");
-        else if (atreaData01[5] & 0x10)
-          atrea_chyby->publish_state("1.mrazová ochrana");
-        else if (atreaData01[5] & 0x20)
-          atrea_chyby->publish_state("2.mrazová ochrana");
-        else if (atreaData01[5] & 0x40)
-          atrea_chyby->publish_state("obvod STOP aktivní");
-        else if (atreaData01[5] & 0x80)
-          atrea_chyby->publish_state("chyba komunikace");
-        else 
-          atrea_chyby->publish_state("ok");
-          
-        atreaData01[0] = 0xFF;
+      switch (atreaData01[3]) {
+        case 0x00:
+          strcpy(strRezim, "Vypnuto");                            // 00
+          break;
+        case 0x01:
+          if (atreaData01[4] & 0x20)                              // 01 31 Chlazení s nárazovým větráním
+            strcpy(strRezim, "Chlazení");
+          else
+            strcpy(strRezim, "Přetlakové větrání");               // 01 01 Pretlakove vetrani
+          break;
+        case 0x04:
+          if (atreaData01[4] & 0x20)
+            strcpy(strRezim, "Cirkulace závislá");                // 04 20 Cirkulace závislá
+          else                                                    // 04 31 Nárazové větrání WC
+            strcpy(strRezim, "Cirkulace");                        // 04 01 Cirkulace
+          break;                                                  // 04 11 Cirkulace s nárazovým větráním
+        case 0x05:
+          strcpy(strRezim, "Chlazení");                           // 05 21 Chlazeni
+          break;
+        case 0x08:
+          if (pozadavek_chlazeni)
+            strcpy(strRezim, "Chlazení a větrání");               // 08 ?? Chlazení s periodickým větráním
+          else
+            strcpy(strRezim, "Cirkulační větrání");               // 08 21 Cirkulacni vetrani (také periodické větrání)
+          break;
+        case 0x10:
+          strcpy(strRezim, "Rovnotlaké větrání");                 // 10 21 Rovnotlake větráni
+          break;                                                  // 10 32 Nárazové větráni kuchyň
+        default:
+          strcpy(strRezim, "???");
       }
+      if ((atreaData01[4] & 0x10) && (atreaData01[4] & 0x03))     // nárazové větrání
+        strcat(strRezim, " + nárazové větrání");
+      atrea_rezim->publish_state(strRezim);
+      
+      if ((atreaData01[4] & 0x03) == 0)
+        atrea_intenzita->publish_state("Vypnuto");
+      else if ((atreaData01[4] & 0x03) == 1)
+        atrea_intenzita->publish_state("Střední");
+      else if ((atreaData01[4] & 0x03) == 2)
+        atrea_intenzita->publish_state("Maximální");
+      else
+        atrea_intenzita->publish_state("???");
+
+      if (atreaData01[4] & 0x04)          
+        atrea_chyby->publish_state("zanesený filtr");
+      else if (atreaData01[5] & 0x01)
+        atrea_chyby->publish_state("porucha čidla TE");
+      else if (atreaData01[5] & 0x02)
+        atrea_chyby->publish_state("porucha čidla TI2");
+      else if (atreaData01[5] & 0x04)
+        atrea_chyby->publish_state("zámraz rekuperátoru");
+      else if (atreaData01[5] & 0x08)
+        atrea_chyby->publish_state("porucha čidla TA");
+      else if (atreaData01[5] & 0x10)
+        atrea_chyby->publish_state("1.mrazová ochrana");
+      else if (atreaData01[5] & 0x20)
+        atrea_chyby->publish_state("2.mrazová ochrana");
+      else if (atreaData01[5] & 0x40)
+        atrea_chyby->publish_state("obvod STOP aktivní");
+      else if (atreaData01[5] & 0x80)
+        atrea_chyby->publish_state("chyba komunikace");
+      else 
+        atrea_chyby->publish_state("ok");
     }
   }
 };
@@ -379,32 +375,31 @@ class AtreaSensor : public PollingComponent {
   void update() override {
     uint32_t ms = millis();
 
-    if (ms > zmenaAtreaSensor01 + MAXINTERVAL) { // aktualizuj při změně nebo co MAXINTERVAL
-      zmenaAtreaSensor01 = ms;    
-      if (atreaData01[1] == 0x00) {
-        if (atreaData01[6] > -40+50) {
-            atrea_teplota_TE->publish_state(atreaData01[6]-50.0);
-            // úprava topné sezóny podle venkovní teploty
-            if (atreaData01[6] > 25+50)
-                topna_sezona = false;
-            if (atreaData01[6] < 5+50)
-                topna_sezona = true;
-        }
-        if (atreaData01[7] > -10+50)
-            atrea_teplota_TA->publish_state(atreaData01[7] - 50.0);
-            
-        atreaData01[1] = 0xFF;
+    if (ms >= zmenaAtreaSensor01 && atreaData01[1] == 0x00) { // aktualizuj při změně nebo co MAXINTERVAL
+      zmenaAtreaSensor01 = ms + MAXINTERVAL;    
+      atreaData01[1] = 0xFF;   // zneplatni paket
+      
+      if (atreaData01[6] > -40+50) {
+        atrea_teplota_TE->publish_state(atreaData01[6]-50.0);
+
+        // úprava topné sezóny podle venkovní teploty
+        if (atreaData01[6] > 25+50)
+          topna_sezona = false;
+        if (atreaData01[6] < 5+50)
+          topna_sezona = true;
       }
+      if (atreaData01[7] > -10+50)
+        atrea_teplota_TA->publish_state(atreaData01[7] - 50.0);
     }
-    if (ms > zmenaAtreaSensor13 + MAXINTERVAL) { // aktualizuj při změně nebo co MAXINTERVAL
-      zmenaAtreaSensor13 = ms;    
-      if (atreaData13[0] == 0xF5) {
-        if (atreaData13[5] > -10+50)
-          atrea_teplota_TI2->publish_state(atreaData13[5]-50.0);
-        atrea_cirkulace->publish_state(atreaData13[3]*100/255);
+
+    if (ms >= zmenaAtreaSensor13 && atreaData13[0] == 0xF5) { // aktualizuj při změně nebo co MAXINTERVAL
+      zmenaAtreaSensor13 = ms + MAXINTERVAL;    
+      atreaData13[0] = 0xFF;   // zneplatni paket
+      
+      if (atreaData13[5] > -10+50)
+        atrea_teplota_TI2->publish_state(atreaData13[5]-50.0);
         
-        atreaData13[0] = 0xFF;
-      }
+      atrea_cirkulace->publish_state(atreaData13[3]*100/255);
     }
   }
 };
@@ -438,60 +433,52 @@ class AtreaBinarySensor : public PollingComponent {
   void update() override {
     uint32_t ms = millis();
 
-    if (ms > zmenaAtreaBinSen01 + MAXINTERVAL) { // aktualizuj při změně nebo co MAXINTERVAL    
-      zmenaAtreaBinSen01 = ms;    
-      if (atreaData01[2] == 0x01) {
-        atrea_topi->publish_state(atreaData01[4] & 0x08);
+    if (ms >= zmenaAtreaBinSen01 && atreaData01[2] == 0x01) { // aktualizuj při změně nebo co MAXINTERVAL    
+      zmenaAtreaBinSen01 = ms + MAXINTERVAL;    
+      atreaData01[2] = 0xFF;   // zneplatni paket
 
-        atrea_chladi->publish_state((atreaData01[3] == 5 && (atreaData01[4] & 0x03)) 
-                                 || (atreaData01[3] == 8 && (atreaData01[4] & 0x03) && pozadavek_chlazeni)
-                                 || (atreaData01[3] == 1 && (atreaData01[4] & 0x03) && (atreaData01[4] & 0x20)));
+      atrea_topi->publish_state(atreaData01[4] & 0x08);
+      atrea_chladi->publish_state((atreaData01[3] == 5 && (atreaData01[4] & 0x03)) 
+                               || (atreaData01[3] == 8 && (atreaData01[4] & 0x03) && pozadavek_chlazeni)
+                               || (atreaData01[3] == 1 && (atreaData01[4] & 0x03) && (atreaData01[4] & 0x20)));
 
-        narazove_vetrani = atreaData01[4] & 0x10;
-        atrea_narazove_vetrani->publish_state(narazove_vetrani);
-
-        atrea_fx->publish_state(atreaData01[4] & 0x20);
-        
-        atreaData01[2] = 0xFF;
-      }
+      narazove_vetrani = atreaData01[4] & 0x10;
+      atrea_narazove_vetrani->publish_state(narazove_vetrani);
+      atrea_fx->publish_state(atreaData01[4] & 0x20);
     }
 
-    if (ms > zmenaAtreaBinSen03 + MAXINTERVAL) { // aktualizuj při změně nebo co MAXINTERVAL    
-      zmenaAtreaBinSen03 = ms;    
-      if (atreaData03[0] == 0xF5) {
-        atrea_D1->publish_state(atreaData03[3] & 0x01);
-        atrea_D2->publish_state(atreaData03[3] & 0x02);
-        atrea_D3->publish_state(atreaData03[3] & 0x04);
-        atrea_D4->publish_state(atreaData03[3] & 0x08);
+    if (ms >= zmenaAtreaBinSen03 && atreaData03[0] == 0xF5) { // aktualizuj při změně nebo co MAXINTERVAL    
+      zmenaAtreaBinSen03 = ms + MAXINTERVAL;    
+      atreaData03[0] = 0xFF;   // zneplatni paket
 
-        atrea_klapka_SR->publish_state(atreaData03[8] & 0x01);
-        atrea_bypass_SB->publish_state(atreaData03[8] & 0x02);
-        atrea_YV->publish_state(atreaData03[8] & 0x04);
-        atrea_K->publish_state(atreaData03[8] & 0x08);
-        atrea_OC1->publish_state(atreaData03[8] & 0x20);
-        
-        atreaData03[0] = 0xFF;
-      }
+      atrea_D1->publish_state(atreaData03[3] & 0x01);
+      atrea_D2->publish_state(atreaData03[3] & 0x02);
+      atrea_D3->publish_state(atreaData03[3] & 0x04);
+      atrea_D4->publish_state(atreaData03[3] & 0x08);
+
+      atrea_klapka_SR->publish_state(atreaData03[8] & 0x01);
+      atrea_bypass_SB->publish_state(atreaData03[8] & 0x02);
+      atrea_YV->publish_state(atreaData03[8] & 0x04);
+      atrea_K->publish_state(atreaData03[8] & 0x08);
+      atrea_OC1->publish_state(atreaData03[8] & 0x20);
     }
 
-    if (ms > zmenaCpBinSen + MAXINTERVAL) { // aktualizuj při změně nebo co MAXINTERVAL    
-      zmenaCpBinSen = ms;
-      if (cpData[1] == 0 && ms < (timeCp + 15000)) {
-        cp07_bypass->publish_state(cpData[5] == 1);
+    if (ms >= zmenaCpBinSen && cpData01[1] == 0) { // aktualizuj při změně nebo co MAXINTERVAL    
+      zmenaCpBinSen = ms + MAXINTERVAL;
+      cpData01[1] = 0xFF;   // zneplatni paket
+      
+      if (ms < (timeCp + 15000)) {
+        cp07_bypass->publish_state(cpData01[5] == 1);
         esp_aktivni_ovladac->publish_state(false);
-        
-        cpData[1] = 0xFF;
-      } else {
-        esp_aktivni_ovladac->publish_state(true);
       }
     }
     
-    if (ms > zmenaEspBinSen + MAXINTERVAL) { // aktualizuj při změně nebo co MAXINTERVAL    
-      zmenaEspBinSen = ms;
-      if (id(esp_aktivni_ovladac).state) {
-        esp_topna_sezona->publish_state(topna_sezona);
-        esp_bypass->publish_state(espData[5] == 1);
-      }
+    if (ms >= zmenaEspBinSen) { // aktualizuj při změně nebo co MAXINTERVAL    
+      zmenaEspBinSen = ms + MAXINTERVAL;
+
+      esp_aktivni_ovladac->publish_state(true);
+      esp_topna_sezona->publish_state(topna_sezona);
+      esp_bypass->publish_state(espData[5] == 1);
     }
   }
 };
