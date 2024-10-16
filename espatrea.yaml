@@ -112,8 +112,8 @@ select:
     options:
       - "Rovnotlaké větrání"
       - "Cirkulační větrání"
-      - "Cirkulace"
       - "Cirkulace závislá"
+      - "Cirkulace"
       - "Přetlakové větrání"
     initial_option: "Cirkulace závislá"
     
@@ -148,11 +148,11 @@ climate:
     name: "Termostat domu"
     id: termostat_domu
     sensor: esp_teplota_termostatu
-    min_cooling_off_time: 20s
-    min_cooling_run_time: 20s
-    min_heating_off_time: 20s
-    min_heating_run_time: 20s
-    min_idle_time: 20s
+    min_cooling_off_time: 30s
+    min_cooling_run_time: 30s
+    min_heating_off_time: 30s
+    min_heating_run_time: 30s
+    min_idle_time: 30s
     visual:
       min_temperature: 16
       max_temperature: 28
@@ -170,13 +170,13 @@ climate:
     idle_action:
       - switch.turn_off: esp_chlazeni
       - switch.turn_off: esp_topeni
-    heat_mode:
+    heat_mode: 
       then:
         - switch.turn_off: esp_topeni
-    cool_mode:
+    cool_mode: 
       then:
         - switch.turn_off: esp_chlazeni
-    off_mode:
+    off_mode: 
       then:
         - switch.turn_off: esp_chlazeni
         - switch.turn_off: esp_topeni
@@ -187,5 +187,4 @@ climate:
         default_target_temperature_high: 24 °C
       - name: Pryč
         default_target_temperature_low: 18 °C
-        default_target_temperature_high: 25 °C
-        
+        default_target_temperature_high: 25 °C        
