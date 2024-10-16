@@ -341,7 +341,7 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
     - heating: mode2 = 4 (circulation dep. and circulation), 8 (circulation vent.), 16 (equal press. vent.), flags = 1 or 2 + 0x08 + fx
   - intensity: 0=off, 1=medium or 2=max
   - shock ventilation flag 0x10 (0x31 or 0x32 with intensity 1 or 2)
-  - fx ?: RV 0,0x20, CV 0,0x20, CZ 0x20, C 0, PV 0, Cooling 0x20
+  - fx: RV 0 or 0x20 (keeps the previous state), CV 0 or 0x20 (keeps the previous state), CZ 0x20, C 0, PV 0, Cooling 0x20
   - errorB: 0x04 = filter clogged
   - errors: 1=TE error, 2=TI2 error, 4=recuperator freezing, 8=TA error, 16=1st.freezing protection (TI2 < 12°C), 32=2nd.freezing protection (TI2 < 7°C), 64=active STOP, 128=communication error
   - outdoor temperature = TE-50
