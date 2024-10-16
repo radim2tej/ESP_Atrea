@@ -6,8 +6,13 @@ uint8_t espData[10] = {0xF5, 0, 1, 0, 0, 2, 1, 2, 0} ;       	// paket Esp do At
 uint8_t atreaData01[10] = {0xff, 0xff, 0xff};	// paket z Atrey
 uint8_t atreaData03[10] = {0xff};	// paket z Atrey
 uint8_t atreaData13[10] = {0xff};	// paket z Atrey
+// nastavováním prvních byte v paketech na 0xFF si označuji již zpracovaná a odeslaná data
+// data se posílají po změně nebo co MAXINTERVAL
+// v případě výpadku komunikace se pak data již neposílají
 
-uint32_t timeCp = 0;    // casovac odesilani ESP paketu
+#define MAXINTERVAL     60000   // max update interval [ms] 
+
+uint32_t timeCp = 0;    // casovac prijmu CP paketu kvůli odesilani ESP paketu
 
 // casovace pro aktualizaci dat
 int32_t zmenaCpText = 0;
@@ -23,8 +28,7 @@ bool pozadavek_chlazeni = false;
 bool narazove_vetrani = false;
 bool topna_sezona = false;
 
-#define MAXINTERVAL     60000   // max update interval [ms] 
-
+// sleep LIN driveru
 const int gpio_nslp = 4; // D2
 #define NSLP0   digitalWrite(gpio_nslp, LOW);
 #define NSLP1   digitalWrite(gpio_nslp, HIGH);
@@ -83,7 +87,7 @@ class AtreaUart : public Component, public UARTDevice, public TextSensor {
 
     NSLP1;
 
-    // úprava topné sezóny podle poadavku topení / chlazení    
+    // úprava topné sezóny podle požadavku topení / chlazení    
     if (id(esp_topeni).state)
         topna_sezona = true;
     if ((pozadavek_chlazeni = id(esp_chlazeni).state) == true)    
@@ -243,7 +247,7 @@ class AtreaTextSensor : public PollingComponent {
 
     if (ms > zmenaCpText + MAXINTERVAL) { // aktualizuj při změně nebo co MAXINTERVAL    
       zmenaCpText = ms;    
-      if (cpData[0] == 0xF5 /*&& ms < (timeCp + 15000)*/) {
+      if (cpData[0] == 0xF5) {
         pozadavek_chlazeni = false;
         if (cpData[4] == 0x01 && cpData[6] == 0x02) {
           cp07_rezim->publish_state("Chlazení");              // Chlazeni
@@ -389,7 +393,7 @@ class AtreaSensor : public PollingComponent {
         if (atreaData01[7] > -10+50)
             atrea_teplota_TA->publish_state(atreaData01[7] - 50.0);
             
-        atreaData01[0] = 0xFF;
+        atreaData01[1] = 0xFF;
       }
     }
     if (ms > zmenaAtreaSensor13 + MAXINTERVAL) { // aktualizuj při změně nebo co MAXINTERVAL
@@ -438,11 +442,14 @@ class AtreaBinarySensor : public PollingComponent {
       zmenaAtreaBinSen01 = ms;    
       if (atreaData01[2] == 0x01) {
         atrea_topi->publish_state(atreaData01[4] & 0x08);
+
         atrea_chladi->publish_state((atreaData01[3] == 5 && (atreaData01[4] & 0x03)) 
                                  || (atreaData01[3] == 8 && (atreaData01[4] & 0x03) && pozadavek_chlazeni)
                                  || (atreaData01[3] == 1 && (atreaData01[4] & 0x03) && (atreaData01[4] & 0x20)));
+
         narazove_vetrani = atreaData01[4] & 0x10;
         atrea_narazove_vetrani->publish_state(narazove_vetrani);
+
         atrea_fx->publish_state(atreaData01[4] & 0x20);
         
         atreaData01[2] = 0xFF;
@@ -456,6 +463,7 @@ class AtreaBinarySensor : public PollingComponent {
         atrea_D2->publish_state(atreaData03[3] & 0x02);
         atrea_D3->publish_state(atreaData03[3] & 0x04);
         atrea_D4->publish_state(atreaData03[3] & 0x08);
+
         atrea_klapka_SR->publish_state(atreaData03[8] & 0x01);
         atrea_bypass_SB->publish_state(atreaData03[8] & 0x02);
         atrea_YV->publish_state(atreaData03[8] & 0x04);
