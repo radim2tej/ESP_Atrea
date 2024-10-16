@@ -304,7 +304,6 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
     [ATREA]: F5 54 01 32 0A 01 FF 00 00 F0
 
 ![panel 1](atrea1.png)
-![panel 2](atrea2.png)
 
 # Decode packets
 ### The requests packet from the CP07 controller to the Atrea unit:
@@ -336,13 +335,13 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
     - circulation: mode2 = 4, flag = 1 or 2
     - dependent circulation standby: mode2 = 4, flags = 0x20
     - dependent circulation ventilation: mode2 = 8, flags = 0x21 or 0x22
-    - circulation ventilation: mode2 = 8, flag = 1 or 2
+    - circulation ventilation: mode2 = 8, flag = 1 or 2xxx
     - equal pressure ventilation: mode2 = 16, flag = 0x21 or 0x22 (electric/gas boiler heating)
     - cooling: mode2 = 5, flags = 0x21 or 0x22
-    - heating: mode2 = 4 (circulation dep. and circulation), 8 (circulation vent.), 16 (equal press. vent.), flags = 1 or 2 + 0x08
+    - heating: mode2 = 4 (circulation dep. and circulation), 8 (circulation vent.), 16 (equal press. vent.), flags = 1 or 2 + 0x08 + fx
   - intensity: 0=off, 1=medium or 2=max
   - shock ventilation flag 0x10 (0x31 or 0x32 with intensity 1 or 2)
-  - fx: bit 0x20: ?
+  - fx: RV 0 or 0x20 (keeps the previous state), CV 0 or 0x20 (keeps the previous state), CZ 0x20, C 0, PV 0, Cooling 0x20
   - errorB: 0x04 = filter clogged
   - errors: 1=TE error, 2=TI2 error, 4=recuperator freezing, 8=TA error, 16=1st.freezing protection (TI2 < 12°C), 32=2nd.freezing protection (TI2 < 7°C), 64=active STOP, 128=communication error
   - outdoor temperature = TE-50
@@ -394,6 +393,11 @@ Programming of the module uses the ESPHome environment. The code is written in C
 
 ![chart](atrea3.png)
 
+# Automatic control of air handling modes
+I use an integrated thermostat to set the temperatures. I use a scheduler to set the modes. Usually the unit runs in CZ mode, switches to RV in the morning and then to CV. Then it runs in CZ mode until the evening and then switches to RV, then to C and then to CZ. It varies by day of the week.
+
+![chart](planovac1.png)![chart](planovac2.png)
+
 # Examples of automations
 Solar gain circulation
 ```
@@ -443,9 +447,9 @@ mode: single
 
 Control heating and cooling
 ```
-alias: VZT - řízeni topení a chlazení
+alias: VZT - rizeni topení a chlazení
 description: >-
-  VZT nastavování teploty topení, blokování topení podle ceny, chlazení pøi
+  VZT nastavování teploty topení, blokování topení podle ceny, chlazení při
   nadbytku FVE
 trigger:
   - platform: state
@@ -458,17 +462,13 @@ trigger:
   - platform: state
     entity_id:
       - binary_sensor.atrea_narazove_vetrani
-  - platform: state
-    entity_id:
-      - sensor.pv_power
-    enabled: false
   - platform: time_pattern
     minutes: /20
 action:
   - alias: topení
     if:
       - condition: state
-        entity_id: climate.home_thermostat
+        entity_id: climate.termostat_domu
         state: heat
     then:
       - if:
@@ -485,8 +485,15 @@ action:
               value: 1
             target:
               entity_id: input_number.upravena_temperature
-            alias: nastaví offset termostatu na 0,5 kvuli levne energii
+            alias: nastaví offset termostatu kvuli levne energii
             action: input_number.set_value
+            enabled: false
+          - action: climate.set_temperature
+            metadata: {}
+            data:
+              target_temp_low: 22.5
+            target:
+              entity_id: climate.termostat_domu
         else:
           - data:
               value: 0
@@ -494,22 +501,31 @@ action:
               entity_id: input_number.upravena_temperature
             alias: vypnuti offsetu termostatu
             action: input_number.set_value
+            enabled: false
+          - action: climate.set_temperature
+            metadata: {}
+            data:
+              target_temp_low: 21.5
+            target:
+              entity_id: climate.termostat_domu
       - if:
           - condition: state
             entity_id: binary_sensor.count_expensive_hours
             state: "on"
         then:
-          - device_id: 904cd0b7d9147d7b3b4ad392bb80d9a8
-            domain: select
-            entity_id: select.esp_intenzita
-            type: select_option
-            option: Vypnuto
+          - action: climate.set_temperature
+            metadata: {}
+            data:
+              target_temp_low: 20.5
+            target:
+              entity_id: climate.termostat_domu
         else:
-          - device_id: 904cd0b7d9147d7b3b4ad392bb80d9a8
-            domain: select
-            entity_id: select.esp_intenzita
-            type: select_option
-            option: Střední
+          - action: climate.set_temperature
+            metadata: {}
+            data:
+              target_temp_low: 21.5
+            target:
+              entity_id: climate.termostat_domu
     else:
       - alias: kontrola nadbytku energie pro chlazeni
         if:
@@ -533,12 +549,15 @@ action:
                   {{ max(130 - 100 *
                   states('sensor.solcast_pv_forecast_forecast_remaining_today')
                   | float(default=50.0) / 14.4, 0) }}
-                alias: bude vìtší výroba energie FVE k dobití baterie do 100%
+                alias: bude větší výroba energie FVE k dobití baterie do 100%
+              - condition: state
+                entity_id: binary_sensor.chladici_sezona
+                state: "on"
         then:
           - data:
               hvac_mode: cool
             target:
-              entity_id: climate.home_thermostat
+              entity_id: climate.termostat_domu
             action: climate.set_hvac_mode
           - device_id: 904cd0b7d9147d7b3b4ad392bb80d9a8
             domain: select
@@ -550,20 +569,20 @@ action:
           - data:
               hvac_mode: "off"
             target:
-              entity_id: climate.home_thermostat
+              entity_id: climate.termostat_domu
             action: climate.set_hvac_mode
           - device_id: 904cd0b7d9147d7b3b4ad392bb80d9a8
             domain: select
             entity_id: select.esp_intenzita
             type: select_option
-            option: Støední
+            option: Střední
             enabled: false
 mode: single
 ```
 
 Control heatin and cooling bypass
 ```
-alias: VZT - øízení klapky špajzu pro chlazení / topení
+alias: VZT - řízení klapky špajzu pro chlazení / topení
 description: chlazení a topení ve špajzu
 trigger:
   - platform: state
