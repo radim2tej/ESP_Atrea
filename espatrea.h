@@ -1,28 +1,23 @@
 #include "esphome.h"
 
 // pakety
-uint8_t cpData[10] = {0xff};	// paket z CP07
+uint8_t cpData[10] = {0xff, 0xff};	// paket z CP07
 uint8_t espData[10] = {0xF5, 0, 1, 0, 0, 2, 1, 2, 0} ;       	// paket Esp do Atrey
-uint8_t atreaData01[10] = {0xff};	// paket z Atrey
+uint8_t atreaData01[10] = {0xff, 0xff, 0xff};	// paket z Atrey
 uint8_t atreaData03[10] = {0xff};	// paket z Atrey
 uint8_t atreaData13[10] = {0xff};	// paket z Atrey
 
-// casy paketu
-uint32_t timeCp = 0;
-uint32_t timeEsp = 0;
-uint32_t timeAtrea01 = 0;
-uint32_t timeAtrea03 = 0;
-uint32_t timeAtrea13 = 0;
+uint32_t timeCp = 0;    // casovac odesilani ESP paketu
 
 // casovace pro aktualizaci dat
-uint32_t zmenaCpText = 0;
-uint32_t zmenaCpBinSen = 0;
-uint32_t zmenaEspBinSen = 0;
-uint32_t zmenaAtreaText = 0;
-uint32_t zmenaAtreaSensor01 = 0;
-uint32_t zmenaAtreaSensor13 = 0;
-uint32_t zmenaAtreaBinSen01 = 0;
-uint32_t zmenaAtreaBinSen03 = 0;
+int32_t zmenaCpText = 0;
+int32_t zmenaCpBinSen = 0;
+int32_t zmenaEspBinSen = 0;
+int32_t zmenaAtreaText = 0;
+int32_t zmenaAtreaSensor01 = 0;
+int32_t zmenaAtreaBinSen01 = 0;
+int32_t zmenaAtreaBinSen03 = 0;
+int32_t zmenaAtreaSensor13 = 0;
 
 bool pozadavek_chlazeni = false;
 bool narazove_vetrani = false;
@@ -98,6 +93,7 @@ class AtreaUart : public Component, public UARTDevice, public TextSensor {
     if (ms > (timeCp + 15000) && ms > (last_ms + 2000)) {
       static uint32_t pruchod = 0;
       uint8_t recuperator;
+      unsigned char crc;
       int i;
 
       last_ms = ms;
@@ -156,10 +152,10 @@ class AtreaUart : public Component, public UARTDevice, public TextSensor {
         espData[7] = 1;
       } else if (id(esp_rezim_vzt).state == "Rovnotlaké větrání") {
         if (id(esp_topeni).state) { // topeni
-//          // rovnotlake vetrani zapina kotel - proto vypinam topeni
+          // rovnotlake vetrani zapina kotel - proto vypinam topeni
 //          espData[4] = 16;	// rovnotlaké větrání
 //          espData[6] = 1;
-//          espData[7] = 2;   // netopim
+//          espData[7] = 3;   // topi
           espData[4] = 8;  // rovnotlake vetrani zapina kotel - proto vetram cirkulačním větráním, kdy topi TC
           espData[6] = 1;
           espData[7] = 3;  // topi
@@ -189,41 +185,38 @@ class AtreaUart : public Component, public UARTDevice, public TextSensor {
         espData[7] = (topna_sezona ? 2 : 0) | (id(esp_topeni).state ? 1 : 0);
       }
       
-      espData[9] = crc8(espData, 9);
+      crc = crc8(espData, 9);
+      if (espData[9] != crc)
+        zmenaEspBinSen = ms - MAXINTERVAL;
+      espData[9] = crc;
 
-      timeEsp = ms;
       for (i = 0; i < 10; i++)
         write(espData[i]);
       ESP_LOGD("ESP", "%02X %02X %02X %02X %02X %02X %02X %02X %02X %02X", espData[0], espData[1], espData[2], espData[3], espData[4], espData[5], espData[6], espData[7], espData[8], espData[9]);
-      timeEsp = ms;
-      zmenaEspBinSen = timeEsp - MAXINTERVAL;
     }
 
     while (available()) {
       if (readpacket(read(), buffer)) {
         if (memcmp(buffer, espData, 10) != 0) {  // neni echo vysilanych dat
           ESP_LOGD("LIN", "%02X %02X %02X %02X %02X %02X %02X %02X %02X %02X", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5], buffer[6], buffer[7], buffer[8], buffer[9]);
-          if (/*ms > (timeEsp + 1000) && */(buffer[1] >= 0 && buffer[1] <= 2) && (buffer[2] >= 0 && buffer[2] <= 3)) {
+          if ((buffer[1] >= 0 && buffer[1] <= 2) && (buffer[2] >= 0 && buffer[2] <= 3)) {
             if (buffer[8] == 0) {  // packet CP07
               timeCp = ms;
               if (cpData[9] != buffer[9])   // odlisne CRC
-                zmenaCpText = zmenaCpBinSen = timeCp - MAXINTERVAL;
+                zmenaCpText = zmenaCpBinSen = ms - MAXINTERVAL;
               memcpy(cpData, buffer, 10);
             } else {  // paket Atrea
               if (buffer[1] == 0 && buffer[2] == 1) {	  // packet Atrea01
-                timeAtrea01 = ms;
                 if (atreaData01[9] != buffer[9])   // odlisne CRC
-                  zmenaAtreaText = zmenaAtreaSensor01 = zmenaAtreaBinSen01 = timeAtrea01 - MAXINTERVAL;
+                  zmenaAtreaText = zmenaAtreaSensor01 = zmenaAtreaBinSen01 = ms - MAXINTERVAL;
                 memcpy(atreaData01, buffer, 10);
               } else if (buffer[1] == 0 && buffer[2] == 3) {	  // packet Atrea03
-                timeAtrea03 = ms;
                 if (atreaData03[9] != buffer[9])   // odlisne CRC
-                  zmenaAtreaBinSen03 = timeAtrea03 - MAXINTERVAL;
+                  zmenaAtreaBinSen03 = ms - MAXINTERVAL;
                 memcpy(atreaData03, buffer, 10);
               } else if (buffer[1] == 1 && buffer[2] == 3) {	  // packet Atrea13
-                timeAtrea13 = ms;
                 if (atreaData13[9] != buffer[9])   // odlisne CRC
-                  zmenaAtreaSensor13 = timeAtrea13 - MAXINTERVAL;
+                  zmenaAtreaSensor13 = ms - MAXINTERVAL;
                 memcpy(atreaData13, buffer, 10);
               }
             }
@@ -243,14 +236,14 @@ class AtreaTextSensor : public PollingComponent {
   TextSensor *atrea_intenzita = new TextSensor();
   TextSensor *atrea_chyby = new TextSensor();
 
-  AtreaTextSensor() : PollingComponent(2000) {}
+  AtreaTextSensor() : PollingComponent(1000) {}
 
   void update() override {
     uint32_t ms = millis();
 
     if (ms > zmenaCpText + MAXINTERVAL) { // aktualizuj při změně nebo co MAXINTERVAL    
       zmenaCpText = ms;    
-      if (cpData[0] == 0xF5 && ms < (timeCp + 15000)) {
+      if (cpData[0] == 0xF5 /*&& ms < (timeCp + 15000)*/) {
         pozadavek_chlazeni = false;
         if (cpData[4] == 0x01 && cpData[6] == 0x02) {
           cp07_rezim->publish_state("Chlazení");              // Chlazeni
@@ -285,6 +278,8 @@ class AtreaTextSensor : public PollingComponent {
           cp07_rizeni_teploty->publish_state("Topí");
         else
           cp07_rizeni_teploty->publish_state("Neaktivní");
+          
+        cpData[0] = 0xFF;
       }
     }
 
@@ -292,7 +287,7 @@ class AtreaTextSensor : public PollingComponent {
       char strRezim[80];
           
       zmenaAtreaText = ms;    
-      if (atreaData01[0] == 0xF5 && ms < (timeAtrea01 + 15000)) {
+      if (atreaData01[0] == 0xF5) {
         switch (atreaData01[3]) {
           case 0x00:
             strcpy(strRezim, "Vypnuto");                            // 00
@@ -357,6 +352,8 @@ class AtreaTextSensor : public PollingComponent {
           atrea_chyby->publish_state("chyba komunikace");
         else 
           atrea_chyby->publish_state("ok");
+          
+        atreaData01[0] = 0xFF;
       }
     }
   }
@@ -369,7 +366,7 @@ class AtreaSensor : public PollingComponent {
   Sensor *atrea_teplota_TI2 = new Sensor();
   Sensor *atrea_cirkulace = new Sensor();
 
-  AtreaSensor() : PollingComponent(2000) { }
+  AtreaSensor() : PollingComponent(1000) { }
 
   void setup() override {
     // nothing to do here
@@ -380,8 +377,8 @@ class AtreaSensor : public PollingComponent {
 
     if (ms > zmenaAtreaSensor01 + MAXINTERVAL) { // aktualizuj při změně nebo co MAXINTERVAL
       zmenaAtreaSensor01 = ms;    
-      if (atreaData01[0] == 0xF5 && ms < (timeAtrea01 + 15000)) {
-        if (atreaData01[6] > -30+50) {
+      if (atreaData01[1] == 0x00) {
+        if (atreaData01[6] > -40+50) {
             atrea_teplota_TE->publish_state(atreaData01[6]-50.0);
             // úprava topné sezóny podle venkovní teploty
             if (atreaData01[6] > 25+50)
@@ -389,16 +386,20 @@ class AtreaSensor : public PollingComponent {
             if (atreaData01[6] < 5+50)
                 topna_sezona = true;
         }
-        if (atreaData01[7] > -20+50)
+        if (atreaData01[7] > -10+50)
             atrea_teplota_TA->publish_state(atreaData01[7] - 50.0);
+            
+        atreaData01[0] = 0xFF;
       }
     }
     if (ms > zmenaAtreaSensor13 + MAXINTERVAL) { // aktualizuj při změně nebo co MAXINTERVAL
       zmenaAtreaSensor13 = ms;    
-      if (atreaData13[0] == 0xF5 && ms < (timeAtrea13 + 15000)) {
+      if (atreaData13[0] == 0xF5) {
         if (atreaData13[5] > -10+50)
           atrea_teplota_TI2->publish_state(atreaData13[5]-50.0);
         atrea_cirkulace->publish_state(atreaData13[3]*100/255);
+        
+        atreaData13[0] = 0xFF;
       }
     }
   }
@@ -424,7 +425,7 @@ class AtreaBinarySensor : public PollingComponent {
   BinarySensor *esp_topna_sezona = new BinarySensor();
   BinarySensor *esp_bypass = new BinarySensor();
 
-  AtreaBinarySensor() : PollingComponent(2000) { }
+  AtreaBinarySensor() : PollingComponent(1000) { }
 
   void setup() override {
     // nothing to do here
@@ -435,7 +436,7 @@ class AtreaBinarySensor : public PollingComponent {
 
     if (ms > zmenaAtreaBinSen01 + MAXINTERVAL) { // aktualizuj při změně nebo co MAXINTERVAL    
       zmenaAtreaBinSen01 = ms;    
-      if (atreaData01[0] == 0xF5 && ms < (timeAtrea01 + 15000)) {
+      if (atreaData01[2] == 0x01) {
         atrea_topi->publish_state(atreaData01[4] & 0x08);
         atrea_chladi->publish_state((atreaData01[3] == 5 && (atreaData01[4] & 0x03)) 
                                  || (atreaData01[3] == 8 && (atreaData01[4] & 0x03) && pozadavek_chlazeni)
@@ -443,12 +444,14 @@ class AtreaBinarySensor : public PollingComponent {
         narazove_vetrani = atreaData01[4] & 0x10;
         atrea_narazove_vetrani->publish_state(narazove_vetrani);
         atrea_fx->publish_state(atreaData01[4] & 0x20);
+        
+        atreaData01[2] = 0xFF;
       }
     }
 
     if (ms > zmenaAtreaBinSen03 + MAXINTERVAL) { // aktualizuj při změně nebo co MAXINTERVAL    
       zmenaAtreaBinSen03 = ms;    
-      if (atreaData03[0] == 0xF5 && ms < (timeAtrea03 + 15000)) {
+      if (atreaData03[0] == 0xF5) {
         atrea_D1->publish_state(atreaData03[3] & 0x01);
         atrea_D2->publish_state(atreaData03[3] & 0x02);
         atrea_D3->publish_state(atreaData03[3] & 0x04);
@@ -458,14 +461,18 @@ class AtreaBinarySensor : public PollingComponent {
         atrea_YV->publish_state(atreaData03[8] & 0x04);
         atrea_K->publish_state(atreaData03[8] & 0x08);
         atrea_OC1->publish_state(atreaData03[8] & 0x20);
+        
+        atreaData03[0] = 0xFF;
       }
     }
 
     if (ms > zmenaCpBinSen + MAXINTERVAL) { // aktualizuj při změně nebo co MAXINTERVAL    
       zmenaCpBinSen = ms;
-      if (cpData[0] == 0xF5 && ms < (timeCp + 15000)) {
+      if (cpData[1] == 0 && ms < (timeCp + 15000)) {
         cp07_bypass->publish_state(cpData[5] == 1);
         esp_aktivni_ovladac->publish_state(false);
+        
+        cpData[1] = 0xFF;
       } else {
         esp_aktivni_ovladac->publish_state(true);
       }
