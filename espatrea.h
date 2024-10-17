@@ -406,7 +406,7 @@ class AtreaBinarySensor : public PollingComponent {
   BinarySensor *atrea_topi = new BinarySensor();
   BinarySensor *atrea_chladi = new BinarySensor();
   BinarySensor *atrea_narazove_vetrani = new BinarySensor();
-  BinarySensor *atrea_fx = new BinarySensor();
+//  BinarySensor *atrea_fx = new BinarySensor();
   BinarySensor *atrea_D1 = new BinarySensor();
   BinarySensor *atrea_D2 = new BinarySensor();
   BinarySensor *atrea_D3 = new BinarySensor();
@@ -438,7 +438,7 @@ class AtreaBinarySensor : public PollingComponent {
                                || (atreaData01[3] == 8 && (atreaData01[4] & 0x03) && pozadavek_chlazeni)
                                || (atreaData01[3] == 1 && (atreaData01[4] & 0x03) && (atreaData01[4] & 0x20)));
       atrea_narazove_vetrani->publish_state(atreaData01[4] & 0x10);
-      atrea_fx->publish_state(atreaData01[4] & 0x20);
+//      atrea_fx->publish_state(atreaData01[4] & 0x20);
     }
 
     if (ms >= zmenaAtreaBinSen03 && atreaData03[0] == 0xF5) { // aktualizuj při změně nebo co MAXINTERVAL    
