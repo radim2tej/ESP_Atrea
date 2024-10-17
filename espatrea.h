@@ -24,9 +24,8 @@ uint32_t zmenaAtreaBinSen01 = 0;
 uint32_t zmenaAtreaBinSen03 = 0;
 uint32_t zmenaAtreaSensor13 = 0;
 
-bool pozadavek_chlazeni = false;
-bool narazove_vetrani = false;
-bool topna_sezona = false;
+bool pozadavek_chlazeni = false;    // příznak pažadavku chlazení z CP07 nebo ESP na rozklíčování stavu Atrea
+bool topna_sezona = false;          // automaticky detekovaná podle teplot a podle požadavku chlazení a topení
 
 // sleep LIN driveru
 const int gpio_nslp = 4; // D2
@@ -156,10 +155,7 @@ class AtreaUart : public Component, public UARTDevice, public TextSensor {
         espData[7] = 1;
       } else if (id(esp_rezim_vzt).state == "Rovnotlaké větrání") {
         if (id(esp_topeni).state) { // topeni
-          // rovnotlake vetrani zapina kotel - proto vypinam topeni
 //          espData[4] = 16;	// rovnotlaké větrání
-//          espData[6] = 1;
-//          espData[7] = 3;   // topi
           espData[4] = 8;  // rovnotlake vetrani zapina kotel - proto vetram cirkulačním větráním, kdy topi TC
           espData[6] = 1;
           espData[7] = 3;  // topi
@@ -441,9 +437,7 @@ class AtreaBinarySensor : public PollingComponent {
       atrea_chladi->publish_state((atreaData01[3] == 5 && (atreaData01[4] & 0x03)) 
                                || (atreaData01[3] == 8 && (atreaData01[4] & 0x03) && pozadavek_chlazeni)
                                || (atreaData01[3] == 1 && (atreaData01[4] & 0x03) && (atreaData01[4] & 0x20)));
-
-      narazove_vetrani = atreaData01[4] & 0x10;
-      atrea_narazove_vetrani->publish_state(narazove_vetrani);
+      atrea_narazove_vetrani->publish_state(atreaData01[4] & 0x10);
       atrea_fx->publish_state(atreaData01[4] & 0x20);
     }
 
