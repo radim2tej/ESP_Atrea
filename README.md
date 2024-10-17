@@ -371,9 +371,9 @@ For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](h
 - 0xF5 [id1 0x43] [id2 0x01] 0x03 [D1..4] 0x00 0x00 0x00 0x00 [crc]
   - D1..4: D1-D3 WC and bathroom 2,4,8, D4 kitchen 16
 
-# Byte bps control with CP07 controller
+### Byte bps control with CP07 controller
 The Bps byte control the bypass flap - 1 for bypass and 2 for recuperator. In RV and CV mode, the CP07 controller sets the byte bps according to the outdoor TE temperature, room temperature, and target setpoint temperature. In other modes, the byte bps is set to 2.
-### Rules:
+#### Rules:
 - for a heating season and active heating the CP07 controller sets bps to 2 
 - for the heating season, not heating and RV mode
   - 1 = the outdoor TE temperature is greater or equal than 18°C and both the outdoor TE temperature and the requested indoor temperature are less than the actual room temperature
