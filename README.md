@@ -401,7 +401,7 @@ I use an integrated thermostat to set the temperatures. I use a scheduler to set
 # Examples of automations
 Solar gain circulation
 ```
-alias: VZT - cirkulace solárních ziskù
+alias: VZT - cirkulace solárních zisků
 description: ""
 trigger:
   - platform: state
@@ -431,19 +431,32 @@ action:
         entity_id: sensor.pv_power
         above: 2500
     then:
-      - device_id: 904cd0b7d9147d7b3b4ad392bb80d9a8
-        domain: select
-        entity_id: select.esp_rezim_vzt
-        type: select_option
-        option: Cirkulace
+      - action: select.select_option
+        metadata: {}
+        data:
+          option: Cirkulace
+        target:
+          entity_id: select.esp_rezim_vzt
+      - action: select.select_option
+        metadata: {}
+        data:
+          option: Maximální
+        target:
+          entity_id: select.esp_intenzita
     else:
-      - device_id: 904cd0b7d9147d7b3b4ad392bb80d9a8
-        domain: select
-        entity_id: select.esp_rezim_vzt
-        type: select_option
-        option: Cirkulace závislá
-mode: single
-```
+      - action: select.select_option
+        metadata: {}
+        data:
+          option: Cirkulace závislá
+        target:
+          entity_id: select.esp_rezim_vzt
+      - action: select.select_option
+        metadata: {}
+        data:
+          option: Střední
+        target:
+          entity_id: select.esp_intenzita
+mode: single```
 
 Control heating and cooling
 ```
