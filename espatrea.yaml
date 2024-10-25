@@ -83,13 +83,12 @@ binary_sensor:
     lambda: |-
       auto atrea = new AtreaBinarySensor();
       App.register_component(atrea);
-      return {atrea->cp07_bypass, atrea->atrea_topi, atrea->atrea_chladi, atrea->atrea_narazove_vetrani, /*atrea->atrea_fx,*/ atrea->atrea_D1, atrea->atrea_D2, atrea->atrea_D3, atrea->atrea_D4, atrea->atrea_klapka_SR, atrea->atrea_bypass_SB, atrea->atrea_YV, atrea->atrea_K, atrea->atrea_OC1, atrea->esp_aktivni_ovladac, atrea->esp_topna_sezona, atrea->esp_bypass};
+      return {atrea->cp07_bypass, atrea->atrea_topi, atrea->atrea_chladi, atrea->atrea_narazove_vetrani, atrea->atrea_D1, atrea->atrea_D2, atrea->atrea_D3, atrea->atrea_D4, atrea->atrea_klapka_SR, atrea->atrea_bypass_SB, atrea->atrea_YV, atrea->atrea_K, atrea->atrea_OC1, atrea->esp_aktivni_ovladac, atrea->esp_topna_sezona, atrea->esp_bypass};
     binary_sensors:
       - name: "CP07 bypass"
       - name: "Atrea topení"
       - name: "Atrea chlazení"
       - name: "Atrea nárazové větrání"
-#      - name: "Atrea fx"
       - name: "Atrea IO vstup D1"
       - name: "Atrea IO vstup D2"
       - name: "Atrea IO vstup D3"
@@ -187,4 +186,4 @@ climate:
         default_target_temperature_high: 24 °C
       - name: Pryč
         default_target_temperature_low: 18 °C
-        default_target_temperature_high: 25 °C        
+        default_target_temperature_high: 25 °C
