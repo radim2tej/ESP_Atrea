@@ -416,20 +416,18 @@ trigger:
       seconds: 0
     above: 2500
     enabled: false
-condition:
-  - condition: time
-    after: "09:30:00"
-    before: "17:00:00"
+condition: []
 action:
   - if:
       - condition: numeric_state
         entity_id: sun.sun
         attribute: azimuth
         above: 140
-        below: 220
+        below: 240
       - condition: numeric_state
-        entity_id: sensor.pv_power
-        above: 2500
+        entity_id: climate.termostat_domu
+        attribute: target_temp_high
+        below: sensor.teplota_termostatu
     then:
       - action: select.select_option
         metadata: {}
@@ -456,7 +454,8 @@ action:
           option: Střední
         target:
           entity_id: select.esp_intenzita
-mode: single```
+mode: single
+```
 
 Control heating and cooling
 ```
