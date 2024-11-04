@@ -462,12 +462,13 @@ trigger:
     for:
       hours: 0
       minutes: 0
-      seconds: 5
+      seconds: 0
   - platform: state
     entity_id:
       - binary_sensor.atrea_narazove_vetrani
   - platform: time_pattern
     minutes: /20
+    seconds: "5"
 action:
   - alias: topení
     if:
@@ -488,38 +489,31 @@ action:
           - action: climate.set_temperature
             metadata: {}
             data:
-              target_temp_low: 22.5
+              target_temp_low: 22
               target_temp_high: 24
             target:
               entity_id: climate.termostat_domu
         else:
-          - action: climate.set_temperature
-            metadata: {}
-            data:
-              target_temp_low: 21.5
-              target_temp_high: 24
-            target:
-              entity_id: climate.termostat_domu
-      - if:
-          - condition: state
-            entity_id: binary_sensor.count_expensive_hours
-            state: "on"
-        then:
-          - action: climate.set_temperature
-            metadata: {}
-            data:
-              target_temp_low: 20.5
-              target_temp_high: 24
-            target:
-              entity_id: climate.termostat_domu
-        else:
-          - action: climate.set_temperature
-            metadata: {}
-            data:
-              target_temp_low: 21.5
-              target_temp_high: 24
-            target:
-              entity_id: climate.termostat_domu
+          - if:
+              - condition: state
+                entity_id: binary_sensor.count_expensive_hours
+                state: "on"
+            then:
+              - action: climate.set_temperature
+                metadata: {}
+                data:
+                  target_temp_low: 20.5
+                  target_temp_high: 24
+                target:
+                  entity_id: climate.termostat_domu
+            else:
+              - action: climate.set_temperature
+                metadata: {}
+                data:
+                  target_temp_low: 21.5
+                  target_temp_high: 24
+                target:
+                  entity_id: climate.termostat_domu
     else:
       - alias: kontrola nadbytku energie pro chlazeni
         if:
@@ -553,12 +547,24 @@ action:
             target:
               entity_id: climate.termostat_domu
             action: climate.set_hvac_mode
+          - device_id: 904cd0b7d9147d7b3b4ad392bb80d9a8
+            domain: select
+            entity_id: select.esp_intenzita
+            type: select_option
+            option: Maximální
+            enabled: false
         else:
           - data:
               hvac_mode: "off"
             target:
               entity_id: climate.termostat_domu
             action: climate.set_hvac_mode
+          - device_id: 904cd0b7d9147d7b3b4ad392bb80d9a8
+            domain: select
+            entity_id: select.esp_intenzita
+            type: select_option
+            option: Střední
+            enabled: false
 mode: single
 ```
 
