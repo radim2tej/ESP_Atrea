@@ -408,14 +408,6 @@ trigger:
     entity_id:
       - sun.sun
     attribute: azimuth
-  - platform: numeric_state
-    entity_id: sensor.pv_power
-    for:
-      hours: 0
-      minutes: 10
-      seconds: 0
-    above: 2500
-    enabled: false
 condition: []
 action:
   - if:
@@ -493,31 +485,19 @@ action:
                 entity_id: binary_sensor.count_peak_heat_cheapest_hours
                 state: "on"
         then:
-          - data:
-              value: 1
-            target:
-              entity_id: input_number.upravena_temperature
-            alias: nastaví offset termostatu kvuli levne energii
-            action: input_number.set_value
-            enabled: false
           - action: climate.set_temperature
             metadata: {}
             data:
               target_temp_low: 22.5
+              target_temp_high: 24
             target:
               entity_id: climate.termostat_domu
         else:
-          - data:
-              value: 0
-            target:
-              entity_id: input_number.upravena_temperature
-            alias: vypnuti offsetu termostatu
-            action: input_number.set_value
-            enabled: false
           - action: climate.set_temperature
             metadata: {}
             data:
               target_temp_low: 21.5
+              target_temp_high: 24
             target:
               entity_id: climate.termostat_domu
       - if:
@@ -529,6 +509,7 @@ action:
             metadata: {}
             data:
               target_temp_low: 20.5
+              target_temp_high: 24
             target:
               entity_id: climate.termostat_domu
         else:
@@ -536,6 +517,7 @@ action:
             metadata: {}
             data:
               target_temp_low: 21.5
+              target_temp_high: 24
             target:
               entity_id: climate.termostat_domu
     else:
@@ -571,24 +553,12 @@ action:
             target:
               entity_id: climate.termostat_domu
             action: climate.set_hvac_mode
-          - device_id: 904cd0b7d9147d7b3b4ad392bb80d9a8
-            domain: select
-            entity_id: select.esp_intenzita
-            type: select_option
-            option: Maximální
-            enabled: false
         else:
           - data:
               hvac_mode: "off"
             target:
               entity_id: climate.termostat_domu
             action: climate.set_hvac_mode
-          - device_id: 904cd0b7d9147d7b3b4ad392bb80d9a8
-            domain: select
-            entity_id: select.esp_intenzita
-            type: select_option
-            option: Střední
-            enabled: false
 mode: single
 ```
 
