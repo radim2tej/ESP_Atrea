@@ -408,14 +408,6 @@ trigger:
     entity_id:
       - sun.sun
     attribute: azimuth
-  - platform: numeric_state
-    entity_id: sensor.pv_power
-    for:
-      hours: 0
-      minutes: 10
-      seconds: 0
-    above: 2500
-    enabled: false
 condition: []
 action:
   - if:
@@ -470,12 +462,13 @@ trigger:
     for:
       hours: 0
       minutes: 0
-      seconds: 5
+      seconds: 0
   - platform: state
     entity_id:
       - binary_sensor.atrea_narazove_vetrani
   - platform: time_pattern
     minutes: /20
+    seconds: "5"
 action:
   - alias: topení
     if:
@@ -493,51 +486,34 @@ action:
                 entity_id: binary_sensor.count_peak_heat_cheapest_hours
                 state: "on"
         then:
-          - data:
-              value: 1
-            target:
-              entity_id: input_number.upravena_temperature
-            alias: nastaví offset termostatu kvuli levne energii
-            action: input_number.set_value
-            enabled: false
           - action: climate.set_temperature
             metadata: {}
             data:
-              target_temp_low: 22.5
+              target_temp_low: 22
+              target_temp_high: 24
             target:
               entity_id: climate.termostat_domu
         else:
-          - data:
-              value: 0
-            target:
-              entity_id: input_number.upravena_temperature
-            alias: vypnuti offsetu termostatu
-            action: input_number.set_value
-            enabled: false
-          - action: climate.set_temperature
-            metadata: {}
-            data:
-              target_temp_low: 21.5
-            target:
-              entity_id: climate.termostat_domu
-      - if:
-          - condition: state
-            entity_id: binary_sensor.count_expensive_hours
-            state: "on"
-        then:
-          - action: climate.set_temperature
-            metadata: {}
-            data:
-              target_temp_low: 20.5
-            target:
-              entity_id: climate.termostat_domu
-        else:
-          - action: climate.set_temperature
-            metadata: {}
-            data:
-              target_temp_low: 21.5
-            target:
-              entity_id: climate.termostat_domu
+          - if:
+              - condition: state
+                entity_id: binary_sensor.count_expensive_hours
+                state: "on"
+            then:
+              - action: climate.set_temperature
+                metadata: {}
+                data:
+                  target_temp_low: 20.5
+                  target_temp_high: 24
+                target:
+                  entity_id: climate.termostat_domu
+            else:
+              - action: climate.set_temperature
+                metadata: {}
+                data:
+                  target_temp_low: 21.5
+                  target_temp_high: 24
+                target:
+                  entity_id: climate.termostat_domu
     else:
       - alias: kontrola nadbytku energie pro chlazeni
         if:
