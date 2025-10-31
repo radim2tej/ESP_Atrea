@@ -5,9 +5,14 @@ Replacement of a CP07 controller with the ESP8266 module for controlling the Atr
 # Hardware
 The CP07 controller communicates with the ATREA RK2 heat recovery unit via the LIN bus. It communicates at 300 Bauds and each packet has 10 bytes. The CP07 controller sends a query to the Atrea unit (the type is in bytes 2 and 3) and receives a response from Atrea.
 
-For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](https://www.aliexpress.com/item/4001054538389.html) or maybe [UART to LIN Bus Module](https://www.aliexpress.com/item/1005002376896294.html) and an ESP8266 module WeMos D1 mini, which is connected in parallel to the CP07 driver line. If the program detects the presence of the CP07 driver in the ESP8266 after startup, it will only listen to the ATREA system status. If the driver is not present, the module will take over its function. The CP07 driver is still required to configure the unit, but can be disconnect after setup ATREA.
+For the connection use a LIN bus interface [TTL UART to LIN Can Bus Converter](https://www.aliexpress.com/item/1005006301070554.html) or maybe [UART to LIN Bus Module](https://www.aliexpress.com/item/1005008689817215.html), an ESP8266 module WeMos D1 mini and [DC Power Shield V1.1.0 for WEMOS D1 mini](https://www.aliexpress.com/item/1005001621800502.html).
+The ESPAtrea module can completely replace the CP07 controller, but I recommend only inserting the module into the wiring and disconnecting the LINBUS wire to the CP07 controller with a switch due to the possibility of setting parameters. If the CP07 controller is connected and communicating, the ESPAtrea module detects this and only monitors the communication. The CP07 driver is still required to configure the unit, but can be disconnect after setup ATREA.
+
+The complete module can be installed in a [printed box](espatrea.stl) with WAGO terminals. There is also space for installing a LINBUS switch for CP07.
 
 ![schema](schema.jpg)
+![box](IMG-WA0001.jpg)
+![box](IMG-WA0003.jpg)
 
 # Logs CP07 (fw 54.07) <-> Atrea (PIC fw 53.59 for Heating pump)
 ## operating mode equal pressure ventilation (RV)
