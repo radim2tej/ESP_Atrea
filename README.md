@@ -117,19 +117,30 @@ Solar gain circulation
 ```
 alias: VZT - cirkulace solárních zisků
 description: ""
-trigger:
-  - platform: state
-    entity_id:
+triggers:
+  - entity_id:
       - sun.sun
-    attribute: azimuth
-condition: []
-action:
+    attribute: elevation
+    trigger: state
+  - entity_id: sensor.pv_power
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
+    above: 2500
+    enabled: false
+    trigger: numeric_state
+conditions:
+  - condition: numeric_state
+    entity_id: sun.sun
+    attribute: elevation
+    above: 14
+actions:
   - if:
       - condition: numeric_state
         entity_id: sun.sun
-        attribute: azimuth
-        above: 140
-        below: 240
+        attribute: elevation
+        above: 16
       - condition: numeric_state
         entity_id: climate.termostat_domu
         attribute: target_temp_high
@@ -286,25 +297,25 @@ Control heatin and cooling bypass
 ```
 alias: VZT - řízení klapky špajzu pro chlazení / topení
 description: chlazení a topení ve špajzu
-trigger:
-  - platform: state
-    entity_id:
+triggers:
+  - entity_id:
       - binary_sensor.atrea_chlazeni
     for:
       hours: 0
       minutes: 1
       seconds: 0
-  - platform: state
-    entity_id:
+    trigger: state
+  - entity_id:
       - binary_sensor.atrea_topeni
     for:
       hours: 0
       minutes: 1
       seconds: 0
-  - platform: time_pattern
-    minutes: /10
-condition: []
-action:
+    trigger: state
+  - minutes: /10
+    trigger: time_pattern
+conditions: []
+actions:
   - if:
       - condition: or
         conditions:
@@ -313,11 +324,16 @@ action:
             state: "on"
           - condition: and
             conditions:
-              - condition: state
-                entity_id: binary_sensor.atrea_topeni
-                state: "on"
+              - condition: or
+                conditions:
+                  - condition: state
+                    entity_id: binary_sensor.atrea_topeni
+                    state: "on"
+                  - condition: state
+                    entity_id: select.esp_rezim_vzt
+                    state: Cirkulace
               - condition: numeric_state
-                entity_id: sensor.th_spiz_temperature
+                entity_id: sensor.th_spajz_teplota
                 below: 10
     then:
       - type: turn_on
