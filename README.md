@@ -103,12 +103,11 @@ The Bps byte control the bypass flap - 1 for bypass and 2 for recuperator. In RV
   - 2 = the outdoor TE temperature is less than 12°C or the outdoor TE temperature is greater than the actual room temperature or the requested indoor temperature is greater than the actual room temperature
 
 # Instalation
-Programming of the module uses the ESPHome 2025 environment. The code is written in C and in YAML (espatrea.yaml and files in components/atrea). The files are moved to configuration/esphome. The wifi password is in secrets.yaml . In espatrea.yaml, edit the API Key and OTA and Wifi passwords. The module contains a software dual thermostat, and the current temperature is set by the home assistant via the sensor sensor.teplota_termostatu. The thermostat controls the switches switch.esp_topení and switch.esp_chlazeni. The unit modes can be selected via select.esp_rezim_vzt and select.esp_intenzita, and you can use scheduler to change modes due to different programs for individual days.
+Programming of the module uses the ESPHome 2025 environment. The code is written in C and in YAML (espatrea.yaml and files in components/atrea). The files are moved to configuration/esphome. The wifi password is in secrets.yaml . In espatrea.yaml, edit the API Key and OTA and Wifi passwords. The module contains a software dual thermostat, and the current temperature is set by the home assistant via the sensor sensor.teplota_termostatu. The thermostat controls the switches switch.esp_topení and switch.esp_chlazeni.
 
 ![chart](atrea3.png)
 
-# Automatic control of air handling modes
-I use an integrated thermostat to set the temperatures. I use a scheduler to set the modes. Usually the unit runs in CZ mode, switches to RV in the morning and then to CV. Then it runs in CZ mode until the evening and then switches to RV, then to C and then to CZ. It varies by day of the week.
+The unit modes can be selected via select.esp_rezim_vzt and select.esp_intenzita, and you can use scheduler to change modes due to different programs for individual days. Usually the unit runs in CZ mode, switches to RV in the morning and then to CV. Then it runs in CZ mode until the evening and then switches to RV, then to C and then to CZ. It varies by day of the week.
 
 ![chart](planovac1.png)![chart](planovac2.png)
 
