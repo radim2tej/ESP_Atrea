@@ -109,7 +109,7 @@ Programming of the module uses the ESPHome 2025 environment. The code is written
 
 The unit modes can be selected via select.esp_rezim_vzt and select.esp_intenzita, and you can use scheduler to change modes due to different programs for individual days. Usually the unit runs in CZ mode, switches to RV in the morning and then to CV. Then it runs in CZ mode until the evening and then switches to RV, then to C and then to CZ. It varies by day of the week.
 
-![chart](planovac1.png)![chart](planovac2.png)
+![chart](planovac1.png) ![chart](planovac2.png)
 
 # Examples of automations
 Solar gain circulation
