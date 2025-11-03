@@ -17,7 +17,7 @@ The complete module can be installed in a [printed box](espatrea.stl) with WAGO 
 # Logs CP07 (fw 54.07) <-> Atrea (PIC fw 53.59 for Heating pump)
 [Logs for individual modes](log.md)
 
-![panel 1](atrea1.png)
+![panel 1](atrea3.png)
 
 # Decode packets
 ### The requests packet from the CP07 controller to the Atrea unit:
@@ -105,7 +105,7 @@ The Bps byte control the bypass flap - 1 for bypass and 2 for recuperator. In RV
 # Instalation
 Programming of the module uses the ESPHome 2025 environment. The code is written in C and in YAML (espatrea.yaml and files in components/atrea). The files are moved to configuration/esphome. The wifi password is in secrets.yaml . In espatrea.yaml, edit the API Key and OTA and Wifi passwords. The module contains a software dual thermostat, and the current temperature is set by the home assistant via the sensor sensor.teplota_termostatu. The thermostat controls the switches switch.esp_topení and switch.esp_chlazeni.
 
-![chart](atrea3.png)
+![chart](atrea1.png)
 
 The unit modes can be selected via select.esp_rezim_vzt and select.esp_intenzita, and you can use scheduler to change modes due to different programs for individual days. Usually the unit runs in CZ mode, switches to RV in the morning and then to CV. Then it runs in CZ mode until the evening and then switches to RV, then to C and then to CZ. It varies by day of the week.
 
