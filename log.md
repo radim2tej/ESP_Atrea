@@ -1,4 +1,4 @@
-# Logs CP07 (fw 54.07) <-> Atrea (PIC fw 53.59 for Heating pump)
+# Logs CP 07 (fw 54.07) <-> Atrea RK2 (PIC fw 53.59 for Heating pump)
 ## operating mode equal pressure ventilation (RV)
 #### not heating season
     off ventilation
@@ -243,21 +243,25 @@
     main menu
       [CP-07]: F5 00 01 02 10 02 01 02 00 B4
       [ATREA]: F5 00 01 10 32 00 3D 43 FB 93
-      [CP-07]: F5 01 03 02 10 02 01 02 00 8D
-      [ATREA]: F5 01 03 FF 43 43 3D 00 A9 C6
-      [CP-07]: F5 02 03 02 10 02 01 02 00 48
-      [ATREA]: F5 02 03 FF 33 82 EC FF FB 8C
       [CP-07]: F5 00 03 02 10 02 01 02 00 CE
       [ATREA]: F5 00 03 61 0A 00 00 00 81 7A
-    outputs control
-      [CP-07]: F5 43 01 00 00 00 00 00 00 17
-      [ATREA]: F5 43 01 03 02 00 00 00 00 CD
+      [CP-07]: F5 00 01 02 10 02 01 02 00 B4
+      [ATREA]: F5 00 01 10 32 00 3D 43 FB 93
+      [CP-07]: F5 01 03 02 10 02 01 02 00 8D
+      [ATREA]: F5 01 03 FF 43 43 3D 00 A9 C6
+      [CP-07]: F5 00 01 02 10 02 01 02 00 B4
+      [ATREA]: F5 00 01 10 32 00 3D 43 FB 93
+      [CP-07]: F5 02 03 02 10 02 01 02 00 48
+      [ATREA]: F5 02 03 FF 33 82 EC FF FB 8C
+    main menu / outputs control
       [CP-07]: F5 41 01 00 00 00 00 00 00 91
       [ATREA]: F5 41 01 12 11 0B 00 00 00 81
       [CP-07]: F5 42 01 00 00 00 00 00 00 54
       [ATREA]: F5 42 01 FF 33 82 EC FF 3B 75
+      [CP-07]: F5 43 01 00 00 00 00 00 00 17
+      [ATREA]: F5 43 01 03 02 00 00 00 00 CD
       
-## startup sequence
+## startup sequence after switch-on power
     [CP-07]: F5 00 01 01 10 02 01 00 00 7C
     [CP-07]: F5 00 01 01 10 02 01 00 00 7C
     [ATREA]: F5 00 01 00 00 00 00 00 FB CF
