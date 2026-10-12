@@ -8,7 +8,7 @@
 #define MODE_C          "Cirkulace"
 #define MODE_PV         "Přetlakové větrání"
 #define MODE_CH         "Chlazení"
-#define MODE_CHV        "Chlazení a větrání"
+#define MODE_CHV        "Chlazení s větráním"
 #define MODE_OFF        "Vypnuto"
 
 #define INTENSITY_OFF   "Vypnuto"
@@ -144,8 +144,8 @@ void AtreaComponent::generate_esp_packet() {
   }
 
   // Intensity
-  std::string mode = esp_mode_->state;
-  std::string intensity = esp_intensity_->state;
+  std::string mode = esp_mode_->current_option();
+  std::string intensity = esp_intensity_->current_option();
   esp_data[3] = (intensity == INTENSITY_MED) ? 2 : ((intensity == INTENSITY_MAX) ? 4 : 1);
 
   // Update heating season based on heating/cooling requests
@@ -194,10 +194,6 @@ void AtreaComponent::generate_esp_packet() {
           esp_data[5] = 2;
       }
     }
-    if (bypass != esp_data[5]) {    // změna bypasu
-      update_time_esp = ms;
-      bypass = esp_data[5];
-    }
   }
 
   // Ventilation mode
@@ -206,6 +202,7 @@ void AtreaComponent::generate_esp_packet() {
     esp_data[5] = 2;
     esp_data[6] = 2;
     esp_data[7] = 1;
+    esp_data[3] = 4;	// maximalni intenzita
   } else if (mode == MODE_RV) { // rovnotlaké větrání
     if (esp_heating_ != nullptr && esp_heating_->state) { // topeni
       esp_data[4] = 8;  // rovnotlake vetrani zapina kotel - proto vetram cirkulačním větráním, kdy topi TC
@@ -251,6 +248,7 @@ void AtreaComponent::generate_esp_packet() {
 
 void AtreaComponent::update() {
   uint32_t ms = millis();
+  static uint8_t klapka = 0;
 
   if (ms >= update_time_cp && cp_data_01[0] == 0xF5) {
     update_time_cp = ms + MAXINTERVAL;
@@ -309,45 +307,71 @@ void AtreaComponent::update() {
 
   if (ms >= update_time_atrea_01 && atrea_data_01[0] == 0xF5) {
     char str_rezim[SAFE_STRING_SIZE] = {0};
+    bool heating, cooling, narazove;
 
     update_time_atrea_01 = ms + MAXINTERVAL;
     atrea_data_01[0] = 0xFF;
 
+    narazove = atrea_data_01[4] & 0x10;    
+    if (atrea_boost_ventilation_ != nullptr)
+      atrea_boost_ventilation_->publish_state(narazove);
+
+    heating = atrea_data_01[4] & 0x08;
+    if (atrea_heating_ != nullptr)
+      atrea_heating_->publish_state(heating);
+    
+    cooling = (atrea_data_01[3] == 5 && (atrea_data_01[4] & 0x03)) ||
+              (atrea_data_01[3] == 8 && (atrea_data_01[4] & 0x03) && pozadavek_chlazeni) ||
+              (atrea_data_01[3] == 1 && (atrea_data_01[4] & 0x03) && (atrea_data_01[4] & 0x20));
+    if (atrea_cooling_ != nullptr)
+      atrea_cooling_->publish_state(cooling);
+
     if (atrea_mode_ != nullptr) {
-      switch (atrea_data_01[3]) {
-        case 0x00:
-          strcpy(str_rezim, MODE_OFF);
-          break;
-        case 0x01:
-          if (atrea_data_01[4] & 0x20)
+      if ((atrea_data_01[4] & 0x13) == 0)
+        strcpy(str_rezim, MODE_OFF);
+      else {
+        switch (atrea_data_01[3]) {
+          case 0x00:
+            strcpy(str_rezim, MODE_OFF);
+            break;
+          case 0x01:
+            if (atrea_data_01[4] & 0x20)
+              strcpy(str_rezim, MODE_CH);
+            else
+              strcpy(str_rezim, MODE_PV);
+            break;
+          case 0x04:
+            if (narazove) {
+              if (klapka == 100)
+                strcpy(str_rezim, MODE_RV);
+              else 
+                strcpy(str_rezim, MODE_CV);
+            } else
+              strcpy(str_rezim, MODE_C);
+            break;
+          case 0x05:
             strcpy(str_rezim, MODE_CH);
-          else
-            strcpy(str_rezim, MODE_PV);
-          break;
-        case 0x04:
-          if (atrea_data_01[4] & 0x20)
-            strcpy(str_rezim, MODE_CZ);
-          else
-            strcpy(str_rezim, MODE_C);
-          break;
-        case 0x05:
-          strcpy(str_rezim, MODE_CH);
-          break;
-        case 0x08:
-          if (pozadavek_chlazeni)
-            strcpy(str_rezim, MODE_CHV);
-          else
-            strcpy(str_rezim, MODE_CV);
-          break;
-        case 0x10:
-          strcpy(str_rezim, MODE_RV);
-          break;
-        default:
-          strcpy(str_rezim, "???");
+            break;
+          case 0x08:
+            if (pozadavek_chlazeni)
+              strcpy(str_rezim, MODE_CHV);
+            else
+              strcpy(str_rezim, MODE_CV);
+            break;
+          case 0x10:
+            strcpy(str_rezim, MODE_RV);
+            break;
+          default:
+            strcpy(str_rezim, "???");
+        }
       }
       
-      if ((atrea_data_01[4] & 0x10) && (atrea_data_01[4] & 0x03))
-        strncat(str_rezim, " + nárazové větrání", sizeof(str_rezim)-strlen(str_rezim)-1);
+      if (narazove && (atrea_data_01[4] & 0x03))
+        strncat(str_rezim, " nárazové", sizeof(str_rezim)-strlen(str_rezim)-1);
+      if (heating)
+        strncat(str_rezim, " + topí", sizeof(str_rezim)-strlen(str_rezim)-1);
+//      if (cooling)
+//        strncat(str_rezim, " aktivní", sizeof(str_rezim)-strlen(str_rezim)-1);
       atrea_mode_->publish_state(str_rezim);
     }
 
@@ -404,19 +428,6 @@ void AtreaComponent::update() {
       if (exchanger_temperature_ != nullptr)
         exchanger_temperature_->publish_state(atrea_data_01[7] - 50.0);
     }
-
-    if (atrea_heating_ != nullptr)
-      atrea_heating_->publish_state(atrea_data_01[4] & 0x08);
-    
-    if (atrea_cooling_ != nullptr) {
-      bool cooling = (atrea_data_01[3] == 5 && (atrea_data_01[4] & 0x03)) ||
-                     (atrea_data_01[3] == 8 && (atrea_data_01[4] & 0x03) && pozadavek_chlazeni) ||
-                     (atrea_data_01[3] == 1 && (atrea_data_01[4] & 0x03) && (atrea_data_01[4] & 0x20));
-      atrea_cooling_->publish_state(cooling);
-    }
-    
-    if (atrea_boost_ventilation_ != nullptr)
-      atrea_boost_ventilation_->publish_state(atrea_data_01[4] & 0x10);
   }
 
   if (ms >= update_time_atrea_03 && atrea_data_03[0] == 0xF5) {
@@ -453,8 +464,9 @@ void AtreaComponent::update() {
         recuperator_temperature_->publish_state(atrea_data_13[5] - 50.0);
     }
 
+    klapka = atrea_data_13[3] * 100 / 255;
     if (circulation_ != nullptr)
-      circulation_->publish_state(atrea_data_13[3] * 100 / 255);
+      circulation_->publish_state(klapka);
   }
 }
 
